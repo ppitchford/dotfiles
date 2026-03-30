@@ -39,10 +39,12 @@ mode_calculator() {
     local expr="${1#= }"
     [[ -z "$expr" ]] && return
     local result
-    result=$(printf '%s' "$expr" | qalc -t 2>/dev/null | tail -1)
+    result=$(qalc -t "$expr" 2>/dev/null | sed 's/\x1b\[[0-9;]*m//g' | xargs)
     [[ -z "$result" ]] && return
+    local selection
+    selection=$(printf '%s' "$result" | fuzzel --dmenu --prompt "= ")
+    [[ -z "$selection" ]] && return
     printf '%s' "$result" | wl-copy
-    notify-send "Calculator" "$expr = $result" -t 3000
 }
 
 mode_files() {
