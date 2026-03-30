@@ -1,0 +1,111 @@
+#!/usr/bin/bash
+
+# ── unified-launcher ──────────────────────────────────────────────────────────
+# Single SUPER+Space entry point with prefix-based routing.
+#
+# Prefixes:
+#   (none)       → app launcher
+#   = <expr>     → calculator via qalc, result copied to clipboard
+#   / <query>    → file search via fd, open with xdg-open
+#   web <query>  → web search in Firefox via DuckDuckGo
+#   :clipboard   → clipboard history via cliphist
+#   :system      → system commands
+
+# ── Configuration ─────────────────────────────────────────────────────────────
+
+SEARCH_ENGINE="https://duckduckgo.com/?q="
+
+# ── App list ──────────────────────────────────────────────────────────────────
+
+declare -A APP_MAP
+
+load_apps() {
+    local dirs=("/usr/share/applications" "$HOME/.local/share/applications")
+    for dir in "${dirs[@]}"; do
+        [[ -d "$dir" ]] || continue
+        while IFS= read -r file; do
+            local name nodisplay
+            name=$(grep -m1 "^Name=" "$file" 2>/dev/null | cut -d= -f2-)
+            nodisplay=$(grep -m1 "^NoDisplay=" "$file" 2>/dev/null | cut -d= -f2-)
+            [[ -z "$name" || "$nodisplay" == "true" ]] && continue
+            APP_MAP["$name"]="$(basename "$file" .desktop)"
+        done < <(find "$dir" -name "*.desktop" 2>/dev/null)
+    done
+}
+
+# ── Modes ─────────────────────────────────────────────────────────────────────
+
+mode_calculator() {
+    local expr="${1#= }"
+    [[ -z "$expr" ]] && return
+    local result
+    result=$(printf '%s' "$expr" | qalc -t 2>/dev/null | tail -1)
+    [[ -z "$result" ]] && return
+    printf '%s' "$result" | wl-copy
+    notify-send "Calculator" "$expr = $result" -t 3000
+}
+
+mode_files() {
+    local query="${1#/ }"
+    local selection
+    selection=$(fd --hidden --exclude .git --max-results 100 "$query" "$HOME" 2>/dev/null \
+        | fuzzel --dmenu --prompt "Open: " --lines 12)
+    [[ -z "$selection" ]] && return
+    xdg-open "$selection" &>/dev/null &
+}
+
+mode_web() {
+    local query="${1#web }"
+    [[ -z "$query" ]] && return
+    local encoded
+    encoded=$(printf '%s' "$query" | sed 's/ /+/g')
+    firefox "${SEARCH_ENGINE}${encoded}" &>/dev/null &
+}
+
+mode_clipboard() {
+    local selection
+    selection=$(cliphist list | fuzzel --dmenu --prompt "Clipboard: " --lines 12)
+    [[ -z "$selection" ]] && return
+    cliphist decode <<< "$selection" | wl-copy
+}
+
+mode_system() {
+    local selection
+    selection=$(printf "  Suspend\n  Lock\n  Shutdown\n  Reboot\n  Logout" \
+        | fuzzel --dmenu --prompt "System: ")
+    case "$selection" in
+        *Suspend)  loginctl suspend ;;
+        *Lock)     notify-send "Lock" "swaylock not yet configured" -t 3000 ;;
+        *Shutdown) poweroff ;;
+        *Reboot)   reboot ;;
+        *Logout)   mmsg -d quit ;;
+    esac
+}
+
+# ── Main ──────────────────────────────────────────────────────────────────────
+
+load_apps
+
+HINTS="= (calculator)
+/ (file search)
+web (web search)
+:clipboard
+:system"
+
+SELECTION=$(printf '%s\n\n%s\n' "$HINTS" "$(printf '%s\n' "${!APP_MAP[@]}" | sort)" \
+    | fuzzel --dmenu --prompt "› ")
+
+[[ -z "$SELECTION" ]] && exit 0
+
+case "$SELECTION" in
+    "= "*)       mode_calculator "$SELECTION" ;;
+    "/ "*)       mode_files "$SELECTION" ;;
+    "web "*)     mode_web "$SELECTION" ;;
+    ":clipboard") mode_clipboard ;;
+    ":system")   mode_system ;;
+    "= (calculator)"|"/ (file search)"|"web (web search)") exit 0 ;;
+    *)
+        desktop="${APP_MAP[$SELECTION]}"
+        [[ -n "$desktop" ]] && gtk-launch "$desktop" &>/dev/null &
+        ;;
+esac
