@@ -78,8 +78,8 @@ mode_system() {
     case "$selection" in
         *Suspend)  loginctl suspend ;;
         *Lock)     notify-send "Lock" "swaylock not yet configured" -t 3000 ;;
-        *Shutdown) poweroff ;;
-        *Reboot)   reboot ;;
+        *Shutdown) loginctl poweroff ;;
+        *Reboot)   loginctl reboot ;;
         *Logout)   mmsg -d quit ;;
     esac
 }

@@ -46,8 +46,8 @@ PanelWindow {
                     { label: "\uf186  Suspend",  cmd: ["loginctl", "suspend"] },
                     { label: "\uf023  Lock",     cmd: ["swaylock"] },
                     { label: "\uf2f5  Logout",   cmd: ["mmsg", "-d", "quit"] },
-                    { label: "\uf021  Reboot",   cmd: ["reboot"] },
-                    { label: "\uf011  Shutdown", cmd: ["poweroff"] }
+                    { label: "\uf021  Reboot",   cmd: ["loginctl","reboot"] },
+                    { label: "\uf011  Shutdown", cmd: ["loginctl","poweroff"] }
                 ]
 
                 delegate: Rectangle {
