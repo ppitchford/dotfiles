@@ -27,6 +27,7 @@ apply_theme() {
 
     # Map of source theme files to their app config symlink targets
     declare -A links=(
+	["$THEME_DIR/$theme/swaylock.conf"]="$CONFIG_DIR/swaylock/current-theme.conf"
         ["$THEME_DIR/$theme/kitty.conf"]="$CONFIG_DIR/kitty/current-theme.conf"
         ["$THEME_DIR/$theme/fuzzel.ini"]="$CONFIG_DIR/fuzzel/fuzzel.ini"
         ["$THEME_DIR/$theme/mako.conf"]="$CONFIG_DIR/mako/config"
