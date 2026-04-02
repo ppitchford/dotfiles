@@ -1,0 +1,5 @@
+#!/usr/bin/bash
+case "$1" in
+    region) grim -g "$(slurp)" - | satty --filename - ;;
+    full)   grim - | satty --filename - ;;
+esac
