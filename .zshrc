@@ -107,6 +107,20 @@ wifi-forget() {
   iwctl known-networks "$1" forget
 }
 
+# ── Bluetooth ─────────────────────────────────────────────────────────────────
+
+bt-connect() {
+  bluetoothctl connect "$1"
+}
+
+bt-disconnect() {
+  bluetoothctl disconnect "$1"
+}
+
+bt-airpods() {
+  bluetoothctl connect 74:15:F5:25:09:92
+}
+
 # ── Zettelkasten ──────────────────────────────────────────────────────────────
 
 export ZK_HOME="$HOME/Documents/zettelkasten"
