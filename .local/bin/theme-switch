@@ -48,7 +48,7 @@ apply_theme() {
         swww img ~/Pictures/wallpapers/junji-ito-dark.png \
             --transition-type fade --transition-duration 1
     else
-        swww img ~/Pictures/wallpapers/diy-light.png \
+        swww img ~/Pictures/wallpapers/junji-ito-light.png \
             --transition-type fade --transition-duration 1
     fi
 

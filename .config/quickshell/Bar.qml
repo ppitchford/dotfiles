@@ -58,10 +58,11 @@ PanelWindow {
 
             // Void Linux icon → System panel
             BarButton {
-                theme:   theme
-                icon:    "\uf32e"
-                size:    15
-                onClicked: bar.toggleSystem()
+                iconColor:  theme.cFg
+                hoverColor: theme.cBg2
+                icon:       "\uf32e"
+                size:       15
+                onClicked:  bar.toggleSystem()
             }
 
             // Center spacer
@@ -86,27 +87,30 @@ PanelWindow {
 
             // Bluetooth
             BarButton {
-                theme:   theme
-                icon:    "\uf294"
-                onClicked: bar.toggleBluetooth()
+                iconColor:  theme.cFg
+                hoverColor: theme.cBg2
+                icon:       "\uf294"
+                onClicked:  bar.toggleBluetooth()
             }
 
             Item { implicitWidth: 8 }
 
             // Volume
             BarButton {
-                theme:   theme
-                icon:    "\uf028"
-                onClicked: bar.toggleVolume()
+                iconColor:  theme.cFg
+                hoverColor: theme.cBg2
+                icon:       "\uf028"
+                onClicked:  bar.toggleVolume()
             }
 
             Item { implicitWidth: 8 }
 
             // Network
             BarButton {
-                theme:   theme
-                icon:    "\uf1eb"
-                onClicked: bar.toggleNetwork()
+                iconColor:  theme.cFg
+                hoverColor: theme.cBg2
+                icon:       "\uf1eb"
+                onClicked:  bar.toggleNetwork()
             }
 
             Item { implicitWidth: 12 }
