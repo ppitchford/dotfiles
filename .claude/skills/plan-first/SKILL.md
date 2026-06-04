@@ -1,6 +1,6 @@
 ---
 name: plan-first
-description: Structured planning workflow for any coding task. Use at the start of every new feature, bug fix, refactor, or implementation request. Analyzes the project, asks up to 5 clarifying questions, creates a TODO.md, gets user approval, then executes task by task. Never writes code before a plan is approved.
+description: Structured planning workflow for substantial coding work. Use when the user requests a new feature, a refactor touching multiple files, a non-trivial bug fix, a new module or component, or any implementation requiring more than three sequential changes. Trigger phrases include 'add', 'implement', 'build', 'refactor', 'integrate', or 'migrate'. Do NOT use for: single-line edits, typo fixes, variable renames, syntax questions, debugging a single file, code explanations, read-only analysis, or one-shot answers. Analyzes the project, asks up to 5 clarifying questions, creates a TODO.md, gets user approval, then executes task by task. Never writes code before a plan is approved.
 ---
 
 # Plan-First Workflow
