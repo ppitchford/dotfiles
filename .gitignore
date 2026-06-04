@@ -1,1 +1,5 @@
 .config/theme/current
+
+# Claude Code: ignore all local state, track only skills/
+.claude/*
+!.claude/skills/
