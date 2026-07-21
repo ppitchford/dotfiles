@@ -32,17 +32,72 @@ ShellRoot {
     }
 
     // ── Clock ─────────────────────────────────────────────────────────────────
+    //
+    // The QML engine caches the local timezone when it starts, so `new Date()`
+    // and Qt.formatTime() keep reporting the old zone after /etc/localtime is
+    // changed — until quickshell is restarted. Instead we track the system UTC
+    // offset ourselves (re-probed with `date`, which reads /etc/localtime on
+    // every run) and build the wall clock from UTC, which never goes stale.
 
-    property string clockText: Qt.formatTime(new Date(), "HH:mm")
-    property string dateText:  Qt.formatDate(new Date(), "dddd, MMMM d yyyy")
+    property int    tzOffsetMin: 0    // minutes east of UTC
+    property string tzName:      ""   // e.g. "PDT"
 
-    Timer {
-        interval: 1000; running: true; repeat: true
-        onTriggered: {
-            clockText = Qt.formatTime(new Date(), "HH:mm")
-            dateText  = Qt.formatDate(new Date(), "dddd, MMMM d yyyy")
+    // A Date whose *UTC* fields are the wall clock in the system timezone.
+    property var    now:       new Date(0)
+    property string clockText: ""
+    property string dateText:  ""
+
+    readonly property var dayNames: [
+        "Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"
+    ]
+    readonly property var monthNames: [
+        "January","February","March","April","May","June",
+        "July","August","September","October","November","December"
+    ]
+
+    function pad2(n) { return n < 10 ? "0" + n : "" + n }
+
+    function updateClock() {
+        const d = new Date(Date.now() + tzOffsetMin * 60000)
+        now       = d
+        clockText = pad2(d.getUTCHours()) + ":" + pad2(d.getUTCMinutes())
+        dateText  = dayNames[d.getUTCDay()] + ", " + monthNames[d.getUTCMonth()]
+                  + " " + d.getUTCDate() + " " + d.getUTCFullYear()
+    }
+
+    // Wakes on the minute boundary rather than once a second. Minute boundaries
+    // are the same in every timezone, so a stale cached zone can't skew them.
+    SystemClock {
+        precision: SystemClock.Minutes
+        onDateChanged: root.updateClock()
+    }
+
+    Component.onCompleted: root.updateClock()
+
+    // ── Timezone ──────────────────────────────────────────────────────────────
+
+    Process {
+        id: tzProbe
+        command: ["date", "+%z %Z"]
+        running: true
+        stdout: SplitParser {
+            onRead: data => {
+                const parts = data.trim().split(/\s+/)
+                const sign  = parts[0]                        // "-0700"
+                if (!/^[+-]\d{4}$/.test(sign)) return
+                const offset = (sign[0] === "-" ? -1 : 1)
+                    * (parseInt(sign.substr(1, 2), 10) * 60 + parseInt(sign.substr(3, 2), 10))
+                root.tzName = parts.length > 1 ? parts[1] : ""
+                if (offset !== root.tzOffsetMin) {
+                    root.tzOffsetMin = offset
+                    root.updateClock()
+                }
+            }
         }
     }
+
+    // Picks up timezone changes and DST transitions without a restart.
+    Timer { interval: 15000; running: true; repeat: true; onTriggered: tzProbe.running = true }
 
     // ── Tags ──────────────────────────────────────────────────────────────────
 
@@ -127,11 +182,11 @@ ShellRoot {
 
     Bar {
         id: bar
-        theme:           theme
         activeTag:       root.activeTag
         occupiedTags:    root.occupiedTags
         clockText:       root.clockText
         dateText:        root.dateText
+        tzName:          root.tzName
         batteryCapacity: batteryCapacity.capacity
         batteryStatus:   batteryStatus.status
         onToggleSystem:    root.systemVisible    ? root.closeAll() : root.openPanel("system")
@@ -166,6 +221,7 @@ ShellRoot {
 
     Calendar {
         theme:    theme
+        now:      root.now
         visible_: bar.clockHovered
     }
 }

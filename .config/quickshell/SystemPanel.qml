@@ -11,7 +11,7 @@ PanelWindow {
     required property bool     visible_
 
     visible:       visible_
-    anchors.bottom:   true
+    anchors.top:      true
     anchors.left:  true
     implicitWidth:  200
     implicitHeight: col.implicitHeight + 24
@@ -33,7 +33,7 @@ PanelWindow {
             Text {
                 text:           "System"
                 color:          theme.cFg
-                font.family:    "Inter"
+                font.family:    "Atkinson Hyperlegible"
                 font.pixelSize: 13
                 font.bold:      true
                 Layout.alignment: Qt.AlignHCenter
@@ -62,7 +62,7 @@ PanelWindow {
                         anchors.leftMargin:     12
                         text:           modelData.label
                         color:          powerArea.containsMouse ? theme.cBg : theme.cFg
-                        font.family:    "Inter"
+                        font.family:    "Atkinson Hyperlegible"
                         font.pixelSize: 13
                         font.bold:      true
                     }

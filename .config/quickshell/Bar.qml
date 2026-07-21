@@ -8,11 +8,11 @@ PanelWindow {
 
     // ── Properties ────────────────────────────────────────────────────────────
 
-    property QtObject theme
     property int      activeTag:       1
     property var      occupiedTags:    [1]
     property string   clockText:       ""
     property string   dateText:        ""
+    property string   tzName:          ""
     property int      batteryCapacity: 100
     property string   batteryStatus:   "Unknown"
     property bool     clockHovered:    clockArea.containsMouse
@@ -24,7 +24,7 @@ PanelWindow {
 
     // ── Window ────────────────────────────────────────────────────────────────
 
-    anchors.bottom:   true
+    anchors.top:   true
     anchors.left:  true
     anchors.right: true
     implicitHeight: 24
@@ -58,11 +58,9 @@ PanelWindow {
 
             // Void Linux icon → System panel
             BarButton {
-                iconColor:  theme.cFg
-                hoverColor: theme.cBg2
-                icon:       "\uf32e"
-                size:       15
-                onClicked:  bar.toggleSystem()
+                icon:    "\uf32e"
+                size:    15
+                onClicked: bar.toggleSystem()
             }
 
             // Center spacer
@@ -73,8 +71,8 @@ PanelWindow {
             Text {
                 visible:        occupiedTags.length > 1
                 text:           activeTag.toString()
-                color:          theme.cFg
-                font.family:    "Inter"
+                color:          "white"
+                font.family:    "Atkinson Hyperlegible"
                 font.pixelSize: 13
                 font.bold:      true
                 Layout.alignment: Qt.AlignVCenter
@@ -87,39 +85,44 @@ PanelWindow {
 
             // Bluetooth
             BarButton {
-                iconColor:  theme.cFg
-                hoverColor: theme.cBg2
-                icon:       "\uf294"
-                onClicked:  bar.toggleBluetooth()
+                icon:    "\uf294"
+                onClicked: bar.toggleBluetooth()
             }
 
             Item { implicitWidth: 8 }
 
             // Volume
             BarButton {
-                iconColor:  theme.cFg
-                hoverColor: theme.cBg2
-                icon:       "\uf028"
-                onClicked:  bar.toggleVolume()
+                icon:    "\uf028"
+                onClicked: bar.toggleVolume()
             }
 
             Item { implicitWidth: 8 }
 
             // Network
             BarButton {
-                iconColor:  theme.cFg
-                hoverColor: theme.cBg2
-                icon:       "\uf1eb"
-                onClicked:  bar.toggleNetwork()
+                icon:    "\uf1eb"
+                onClicked: bar.toggleNetwork()
             }
 
             Item { implicitWidth: 12 }
 
-            // Battery
+            // Battery — icon and readout split so each gets its own font
             Text {
-                text:           batteryIcon() + "   " + batteryCapacity + "%"
-                color:          theme.cFg
-                font.family:    "Inter"
+                text:           batteryIcon()
+                color:          "white"
+                font.family:    "CaskaydiaCove Nerd Font"
+                font.pixelSize: 13
+                font.bold:      true
+                Layout.alignment: Qt.AlignVCenter
+            }
+
+            Item { implicitWidth: 6 }
+
+            Text {
+                text:           batteryCapacity + "%"
+                color:          "white"
+                font.family:    "Atkinson Hyperlegible"
                 font.pixelSize: 13
                 font.bold:      true
                 Layout.alignment: Qt.AlignVCenter
@@ -128,14 +131,37 @@ PanelWindow {
             Item { implicitWidth: 12 }
 
             // Clock
-            Text {
-                id: clockText_
-                text:           clockText
-                color:          theme.cFg
-                font.family:    "Inter"
-                font.pixelSize: 13
-                font.bold:      true
+            Item {
+                implicitWidth:  clockRow.implicitWidth
+                implicitHeight: clockRow.implicitHeight
                 Layout.alignment: Qt.AlignVCenter
+
+                Row {
+                    id: clockRow
+                    anchors.centerIn: parent
+                    spacing: 5
+
+                    Text {
+                        id: clockText_
+                        text:           clockText
+                        color:          "white"
+                        font.family:    "Atkinson Hyperlegible"
+                        font.pixelSize: 13
+                        font.bold:      true
+                        anchors.verticalCenter: parent.verticalCenter
+                    }
+
+                    // Zone abbreviation, so a timezone change is visible at a glance
+                    Text {
+                        visible:        tzName !== ""
+                        text:           tzName
+                        color:          "#99ffffff"
+                        font.family:    "Atkinson Hyperlegible"
+                        font.pixelSize: 11
+                        font.bold:      true
+                        anchors.verticalCenter: parent.verticalCenter
+                    }
+                }
 
                 MouseArea { id: clockArea; anchors.fill: parent; hoverEnabled: true }
             }

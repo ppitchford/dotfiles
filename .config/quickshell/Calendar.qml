@@ -9,10 +9,14 @@ PanelWindow {
     required property QtObject theme
     required property bool      visible_
 
+    // Wall clock in the system timezone, carried in the Date's UTC fields.
+    // See the clock section of shell.qml — read it with the getUTC* accessors.
+    required property var       now
+
     // ── Window ────────────────────────────────────────────────────────────────
 
     visible:       visible_
-    anchors.bottom:   true
+    anchors.top:      true
     anchors.right: true
     implicitWidth:  220
     implicitHeight: calColumn.implicitHeight + 20
@@ -20,9 +24,8 @@ PanelWindow {
 
     // ── State ─────────────────────────────────────────────────────────────────
 
-    property var  now:          new Date()
-    property int  displayYear:  now.getFullYear()
-    property int  displayMonth: now.getMonth()
+    property int  displayYear:  now.getUTCFullYear()
+    property int  displayMonth: now.getUTCMonth()
 
     readonly property var monthNames: [
         "January","February","March","April","May","June",
@@ -32,11 +35,11 @@ PanelWindow {
     readonly property var dayNames: ["Mo","Tu","We","Th","Fr","Sa","Su"]
 
     function daysInMonth(year, month) {
-        return new Date(year, month + 1, 0).getDate()
+        return new Date(Date.UTC(year, month + 1, 0)).getUTCDate()
     }
 
     function firstDayOfMonth(year, month) {
-        const day = new Date(year, month, 1).getDay()
+        const day = new Date(Date.UTC(year, month, 1)).getUTCDay()
         return (day + 6) % 7
     }
 
@@ -72,7 +75,7 @@ PanelWindow {
                 Text {
                     text:           monthNames[displayMonth] + "  " + displayYear
                     color:          theme.cFg
-                    font.family:    "Inter"
+                    font.family:    "Atkinson Hyperlegible"
                     font.pixelSize: 13
                     font.bold:      true
                     Layout.fillWidth: true
@@ -92,7 +95,7 @@ PanelWindow {
                         width:          calColumn.width / 7
                         text:           modelData
                         color:          theme.cMuted
-                        font.family:    "Inter"
+                        font.family:    "Atkinson Hyperlegible"
                         font.pixelSize: 11
                         font.bold:      true
                         horizontalAlignment: Text.AlignHCenter
@@ -113,9 +116,9 @@ PanelWindow {
                         height: 24
                         radius: 4
                         color: {
-                            const isToday = modelData === calendar.now.getDate()
-                                && displayMonth === calendar.now.getMonth()
-                                && displayYear  === calendar.now.getFullYear()
+                            const isToday = modelData === calendar.now.getUTCDate()
+                                && displayMonth === calendar.now.getUTCMonth()
+                                && displayYear  === calendar.now.getUTCFullYear()
                             return isToday ? theme.cAccent : "transparent"
                         }
 
@@ -123,12 +126,12 @@ PanelWindow {
                             anchors.centerIn: parent
                             text:           modelData > 0 ? modelData.toString() : ""
                             color: {
-                                const isToday = modelData === calendar.now.getDate()
-                                    && displayMonth === calendar.now.getMonth()
-                                    && displayYear  === calendar.now.getFullYear()
+                                const isToday = modelData === calendar.now.getUTCDate()
+                                    && displayMonth === calendar.now.getUTCMonth()
+                                    && displayYear  === calendar.now.getUTCFullYear()
                                 return isToday ? theme.cBg : theme.cFg
                             }
-                            font.family:    "Inter"
+                            font.family:    "Atkinson Hyperlegible"
                             font.pixelSize: 12
                             font.bold:      true
                             horizontalAlignment: Text.AlignHCenter

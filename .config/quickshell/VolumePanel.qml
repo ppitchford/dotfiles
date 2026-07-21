@@ -11,7 +11,7 @@ PanelWindow {
     required property bool     visible_
 
     visible:       visible_
-    anchors.bottom:   true
+    anchors.top:      true
     anchors.right: true
     implicitWidth:  260
     implicitHeight: col.implicitHeight + 24
@@ -85,7 +85,7 @@ PanelWindow {
             Text {
                 text:           "Volume"
                 color:          theme.cFg
-                font.family:    "Inter"
+                font.family:    "Atkinson Hyperlegible"
                 font.pixelSize: 13
                 font.bold:      true
                 Layout.alignment: Qt.AlignHCenter
@@ -94,7 +94,7 @@ PanelWindow {
             Rectangle { Layout.fillWidth: true; height: 1; color: theme.cBg2 }
 
             // Speaker
-            Text { text: "\uf028     Speaker"; color: theme.cMuted; font.family: "Inter"; font.pixelSize: 12; font.bold: true }
+            Text { text: "\uf028     Speaker"; color: theme.cMuted; font.family: "Atkinson Hyperlegible"; font.pixelSize: 12; font.bold: true }
 
             RowLayout {
                 Layout.fillWidth: true; spacing: 8
@@ -124,11 +124,11 @@ PanelWindow {
                     }
                 }
 
-                Text { text: Math.round(volumeProcess.volume * 100) + "%"; color: theme.cFg; font.family: "Inter"; font.pixelSize: 12; font.bold: true; Layout.minimumWidth: 36 }
+                Text { text: Math.round(volumeProcess.volume * 100) + "%"; color: theme.cFg; font.family: "Atkinson Hyperlegible"; font.pixelSize: 12; font.bold: true; Layout.minimumWidth: 36 }
             }
 
             // Microphone
-            Text { text: "\uf130    Microphone"; color: theme.cMuted; font.family: "Inter"; font.pixelSize: 12; font.bold: true }
+            Text { text: "\uf130    Microphone"; color: theme.cMuted; font.family: "Atkinson Hyperlegible"; font.pixelSize: 12; font.bold: true }
 
             RowLayout {
                 Layout.fillWidth: true; spacing: 8
@@ -158,7 +158,7 @@ PanelWindow {
                     }
                 }
 
-                Text { text: Math.round(micProcess.volume * 100) + "%"; color: theme.cFg; font.family: "Inter"; font.pixelSize: 12; font.bold: true; Layout.minimumWidth: 36 }
+                Text { text: Math.round(micProcess.volume * 100) + "%"; color: theme.cFg; font.family: "Atkinson Hyperlegible"; font.pixelSize: 12; font.bold: true; Layout.minimumWidth: 36 }
             }
         }
     }
