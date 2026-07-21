@@ -40,13 +40,14 @@
 /.config/theme/current
 
 # ── ~/.local/bin ──────────────────────────────────────────────────────────────
-# The whole dir is visible so new scripts surface on their own; the two
-# non-source artifacts are excluded by name.
+# The whole dir is visible so new scripts surface on their own. Excluded by
+# name: build output from projects that have their own repos, and downloads.
 
 !/.local
 /.local/*
 !/.local/bin
 /.local/bin/ornatus
+/.local/bin/frame
 /.local/bin/obsidian/
 
 # ── ~/.claude ─────────────────────────────────────────────────────────────────
