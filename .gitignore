@@ -1,5 +1,65 @@
-.config/theme/current
+# Exclude file for the ~/.dotfiles bare repo (work tree = $HOME).
+#
+# $HOME contains far more than dotfiles, so everything is ignored by default and
+# tracked areas are re-included explicitly. Git will not look inside an ignored
+# directory, so each level has to be un-ignored before the level below it can be
+# — that is why .config and .local are listed on their own lines first.
+#
+# To start tracking a new area: add a `!` line for it here, then `dotfiles add`.
 
-# Claude Code: ignore all local state, track only skills/
-.claude/*
-!.claude/skills/
+# Everything at the top level…
+/*
+
+# …except these.
+!/.gitignore
+!/.zprofile
+!/.zshenv
+!/.zshrc
+
+# ── ~/.config ─────────────────────────────────────────────────────────────────
+# Whitelisted per-directory: every installed app writes here, and blacklisting
+# them one by one is a losing game. New files inside these dirs do show up.
+
+!/.config
+/.config/*
+!/.config/fuzzel
+!/.config/greetd
+!/.config/hypr
+!/.config/kitty
+!/.config/mako
+!/.config/mango
+!/.config/mise
+!/.config/nvim
+!/.config/quickshell
+!/.config/satty
+!/.config/theme
+!/.config/xdg-desktop-portal
+!/.config/yazi
+
+# Runtime state, not configuration — written by the theme switcher.
+/.config/theme/current
+
+# ── ~/.local/bin ──────────────────────────────────────────────────────────────
+# The whole dir is visible so new scripts surface on their own; the two
+# non-source artifacts are excluded by name.
+
+!/.local
+/.local/*
+!/.local/bin
+/.local/bin/ornatus
+/.local/bin/obsidian/
+
+# ── ~/.claude ─────────────────────────────────────────────────────────────────
+# Skills are configuration; everything else is local state.
+
+!/.claude
+/.claude/*
+!/.claude/skills
+
+# Local Claude state in any project directory.
+**/.claude/settings.local.json
+
+# ── ~/system ──────────────────────────────────────────────────────────────────
+# Root-owned files mirrored for versioning; installed by system/install.sh.
+
+!/system

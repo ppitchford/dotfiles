@@ -1,0 +1,78 @@
+#!/bin/sh
+# tz-from-ip — point /etc/localtime at the timezone implied by our public IP.
+#
+# Run as root by /etc/dhcpcd.exit-hook each time we pick up a new DHCP lease,
+# and safe to run by hand: `sudo tz-from-ip`.
+#
+# Nothing is changed unless a provider returns a timezone that actually exists
+# in /usr/share/zoneinfo and differs from the current one.
+#
+# Caveats worth knowing:
+#   - Location comes from your public IP, so a VPN moves the clock to the
+#     VPN's exit country. `sudo touch /etc/tz-from-ip.disable` turns it off.
+#   - Your IP is sent to the providers listed below, in order, until one answers.
+
+set -u
+
+ZONEDIR=/usr/share/zoneinfo
+LOG=/var/log/tz-from-ip.log
+STAMP=/run/tz-from-ip.stamp
+CURL="/usr/bin/curl -fsS --max-time 8"
+
+log() {
+	printf '%s  %s\n' "$(date -u '+%Y-%m-%dT%H:%M:%SZ')" "$*" >>"$LOG" 2>/dev/null
+}
+
+[ -e /etc/tz-from-ip.disable ] && exit 0
+
+# dhcpcd fires several events per connect (IPv4, IPv6, renew) — only look once.
+if [ -f "$STAMP" ]; then
+	now=$(date +%s)
+	last=$(stat -c %Y "$STAMP" 2>/dev/null || echo 0)
+	[ $((now - last)) -lt 60 ] && exit 0
+fi
+: >"$STAMP" 2>/dev/null || true
+
+zone=""
+for src in \
+	"https://ipinfo.io/json|.timezone" \
+	"https://ipwho.is/|.timezone.id" \
+	"https://ipapi.co/json|.timezone"
+do
+	url=${src%|*}
+	filter=${src#*|}
+	body=$($CURL "$url" 2>/dev/null) || continue
+	zone=$(printf '%s' "$body" | jq -r "$filter // empty" 2>/dev/null)
+	[ -n "$zone" ] && break
+	zone=""
+done
+
+current=$(readlink /etc/localtime || echo "")
+
+if [ -z "$zone" ]; then
+	log "no provider answered; leaving $current alone"
+	exit 1
+fi
+
+# Validate before touching anything: reject anything that isn't a plain
+# zone name resolving to a real file under /usr/share/zoneinfo.
+case "$zone" in
+	/* | *..* | *' '* | *'	'*)
+		log "rejected suspicious zone '$zone'"
+		exit 1
+		;;
+esac
+
+if [ ! -f "$ZONEDIR/$zone" ]; then
+	log "provider returned unknown zone '$zone'"
+	exit 1
+fi
+
+[ "$current" = "$ZONEDIR/$zone" ] && exit 0
+
+# rename(2) over the old symlink, so no window where /etc/localtime is missing.
+ln -sfn "$ZONEDIR/$zone" /etc/localtime.tz-new \
+	&& mv -f /etc/localtime.tz-new /etc/localtime \
+	|| { log "failed to update /etc/localtime"; exit 1; }
+
+log "timezone ${current:-unset} -> $ZONEDIR/$zone"

@@ -1,0 +1,14 @@
+# Sourced as root by dhcpcd-run-hooks after each DHCP event.
+# Keeps the system timezone in step with wherever we just connected.
+#
+# Sourced, not executed — so no `exit` in here, and keep it cheap: the actual
+# work is backgrounded so dhcpcd never waits on a network round-trip.
+
+case "$reason" in
+	BOUND | REBOOT | BOUND6 | REBOOT6)
+		if [ "$interface" != "lo" ] && [ -x /usr/local/bin/tz-from-ip ]; then
+			# Brief pause so DNS is usable before we call out.
+			(sleep 3; /usr/local/bin/tz-from-ip) >/dev/null 2>&1 &
+		fi
+		;;
+esac

@@ -1,5 +1,6 @@
 #!/bin/sh
-# Installs system configuration files for Framework 13 clamshell mode.
+# Installs the root-owned files this machine needs: Framework 13 clamshell mode,
+# and timezone auto-detection on network connect.
 # Idempotent — safe to re-run after pulling updates from dotfiles.
 
 set -eu
@@ -8,6 +9,7 @@ set -eu
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 ETC_SRC="$SCRIPT_DIR/etc"
+BIN_SRC="$SCRIPT_DIR/usr/local/bin"
 
 # ── Self-elevate ──────────────────────────────────────────────────────────────
 
@@ -46,6 +48,28 @@ else
     echo "already enabled: acpid runit service"
 fi
 
+# ── Timezone auto-detection ───────────────────────────────────────────────────
+# Geolocates the public IP on each DHCP lease and repoints /etc/localtime.
+# dhcpcd already runs as root, so this needs no sudoers rule.
+
+install -m 755 -o root -g root \
+    "$BIN_SRC/tz-from-ip" \
+    /usr/local/bin/tz-from-ip
+echo "installed: /usr/local/bin/tz-from-ip"
+
+install -m 644 -o root -g root \
+    "$ETC_SRC/dhcpcd.exit-hook" \
+    /etc/dhcpcd.exit-hook
+echo "installed: /etc/dhcpcd.exit-hook"
+
+# Set the zone now instead of waiting for the next lease. Never fatal: a fresh
+# install may have no network yet, and `set -e` would otherwise abort the run.
+if /usr/local/bin/tz-from-ip; then
+    echo "timezone: $(readlink /etc/localtime)"
+else
+    echo "warning: timezone lookup failed; will retry on the next DHCP lease"
+fi
+
 # ── Reload elogind ────────────────────────────────────────────────────────────
 
 if pgrep -x elogind-daemon > /dev/null; then
@@ -61,3 +85,5 @@ echo ""
 echo "Verify with:"
 echo "  sudo sv status acpid"
 echo "  grep -E '^HandleLidSwitch' /etc/elogind/logind.conf"
+echo "  readlink /etc/localtime          # follows your location on connect"
+echo "  cat /var/log/tz-from-ip.log      # why it did or didn't change"

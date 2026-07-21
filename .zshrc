@@ -54,6 +54,14 @@ zstyle ':fzf-tab:complete:__zoxide_z:*' fzf-preview 'ls --color $realpath'
 alias ls='ls --color'
 alias obsidian="~/.local/bin/obsidian/Obsidian.AppImage --ozone-platform=wayland"
 
+# keychain
+if command -v keychain >/dev/null 2>&1; then
+  eval "$(keychain --eval --quiet id_ed25519 hetzner_hil)"
+fi
+
+# Keychain is a session-setup concern (manages a daemon, may prompt for passphrase), so it belongs at the front of the eval block.
+# Putting it before mise means any mise hooks that ever invoke git+ssh will already have the agent. 
+
 # fzf
 eval "$(fzf --zsh)"
 
@@ -80,7 +88,9 @@ sys-update() {
 }
 
 # Dotfiles management
-alias dotfiles='git --git-dir=$HOME/.dotfiles --work-tree=$HOME'
+# A function rather than an alias so git's completion can be attached to it.
+dotfiles() { git --git-dir="$HOME/.dotfiles" --work-tree="$HOME" "$@"; }
+compdef dotfiles=git
 
 # ── WiFi ──────────────────────────────────────────────────────────────────────
 
@@ -165,3 +175,4 @@ inbox() {
 }
 
 inbox
+export PATH="$HOME/.npm-global/bin:$PATH"
