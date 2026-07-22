@@ -92,6 +92,21 @@ sys-update() {
 dotfiles() { git --git-dir="$HOME/.dotfiles" --work-tree="$HOME" "$@"; }
 compdef dotfiles=git
 
+# Stage everything, commit, and push in one step: dotsave "message"
+# Prints what it is about to sweep up, since add -A also takes new files.
+dotsave() {
+  if [[ -z "$*" ]]; then
+    echo "usage: dotsave <message>"
+    return 1
+  fi
+  if [[ -z "$(dotfiles status --porcelain)" ]]; then
+    echo "Nothing to commit."
+    return 0
+  fi
+  dotfiles status --short
+  dotfiles add -A && dotfiles commit -q -m "$*" && dotfiles push
+}
+
 # ── WiFi ──────────────────────────────────────────────────────────────────────
 
 wifi-scan() {
