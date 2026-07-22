@@ -87,7 +87,28 @@ sys-update() {
   echo "Done."
 }
 
-# Dotfiles management
+# ── Dotfiles ──────────────────────────────────────────────────────────────────
+# Bare repo at ~/.dotfiles with $HOME as the work tree, so configs are tracked
+# where they already live — no symlink farm, no staging directory.
+#
+#   dotfiles status            what changed, new files included
+#   dotfiles diff              review before staging
+#   dotfiles add -A            stage everything, new files included
+#   dotfiles commit -m "msg"
+#   dotfiles push
+#   dotsave "msg"              the last three in one step
+#   dotfiles restore <path>    discard uncommitted changes to a file
+#   dotfiles pull              picking up changes on another machine
+#
+# Two things that bite:
+#
+#   - `commit -am` and `add -u` stage only files git already tracks, so a newly
+#     created config is skipped without a word. Prefer `add -A`, or dotsave.
+#   - $HOME is mostly not dotfiles, so ~/.gitignore ignores everything and
+#     re-includes tracked areas by name. A new area is invisible to status —
+#     not just untracked, invisible — until you add a `!` line for it there.
+#     That header explains the scheme; read it before adding a new area.
+
 # A function rather than an alias so git's completion can be attached to it.
 dotfiles() { git --git-dir="$HOME/.dotfiles" --work-tree="$HOME" "$@"; }
 compdef dotfiles=git
