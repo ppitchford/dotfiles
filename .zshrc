@@ -172,43 +172,4 @@ bt-airpods() {
 
 export ZK_HOME="$HOME/Documents/zettelkasten"
 
-zet() {
-  local id=$(date +%Y%m%d%H%M%S)
-  local today=$(date +%Y-%m-%d)
-  local file="$ZK_HOME/inbox/${id}.md"
-  sed -e "s/{{id}}/${id}/g" -e "s/{{date}}/${today}/g" \
-    "$ZK_HOME/templates/note.md" > "$file"
-  nvim "$file"
-}
-
-jrnl() {
-  local id=$(date +%Y%m%d000000)
-  local today=$(date +%Y-%m-%d)
-  local file="$ZK_HOME/journal/${id}.md"
-  if [[ ! -f "$file" ]]; then
-    sed -e "s/{{id}}/${id}/g" -e "s/{{date}}/${today}/g" \
-      "$ZK_HOME/templates/daily.md" > "$file"
-  fi
-  nvim "$file"
-}
-
-idx() {
-  local id=$(date +%Y%m%d%H%M%S)
-  local today=$(date +%Y-%m-%d)
-  local file="$ZK_HOME/topics/${id}.md"
-  sed -e "s/{{id}}/${id}/g" -e "s/{{date}}/${today}/g" \
-    "$ZK_HOME/templates/index.md" > "$file"
-  nvim "$file"
-}
-
-inbox() {
-  local count=$(find "$ZK_HOME/inbox" -name "*.md" 2>/dev/null | wc -l)
-  if [[ $count -eq 0 ]]; then
-    echo "Inbox is empty."
-  else
-    echo "$count note(s) awaiting review in inbox."
-  fi
-}
-
-inbox
 export PATH="$HOME/.npm-global/bin:$PATH"
