@@ -51,10 +51,11 @@
 /.local/bin/obsidian/
 
 # ── ~/.claude ─────────────────────────────────────────────────────────────────
-# Skills are configuration; everything else is local state.
+# CLAUDE.md and skills are configuration; everything else is local state.
 
 !/.claude
 /.claude/*
+!/.claude/CLAUDE.md
 !/.claude/skills
 
 # Local Claude state in any project directory.
