@@ -86,7 +86,7 @@
 - Pull before editing. It's a no-op in repos only this machine writes to, and
   it's the difference between a clean start and a merge mess in ones where
   something else does — the zettelkasten syncs from iOS via `obsidian-git`.
-- Freeform commit messages, imperative mood ("Add scroll capture stub").
+- Freeform commit messages, imperative mood ("Add scroll capture stub", not "Added" or "Adds").
 - Subject under ~72 characters. Body only when the "why" isn't obvious.
 - No prefix conventions.
 
