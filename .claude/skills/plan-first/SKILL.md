@@ -26,7 +26,7 @@ Before asking anything, read the project silently. Check:
 4. Build system and scripts (`Makefile`, `scripts/`, CI config).
 5. `README.md` or equivalent.
 6. Existing `TODO.md`, `TASKS.md`, `.todo`, or open-issue files.
-7. Any `CLAUDE.md` or repo-specific Claude instructions.
+7. Any files the repo's `CLAUDE.md` names as required reading. `CLAUDE.md` itself is already loaded at session start; the files it points to are not.
 
 Do not output analysis results unless they're directly relevant to a clarifying question.
 
