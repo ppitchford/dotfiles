@@ -1,5 +1,5 @@
 -- ── Theme switching ───────────────────────────────────────────────────────────
--- Reads ~/.config/theme/current (written by theme-switch daemon) to determine
+-- Reads ~/.config/theme/current (written by ornatus) to determine
 -- whether to use Rosé Pine Main (dark) or Rosé Pine Dawn (light).
 -- A file watcher detects changes and switches the colorscheme live.
 
