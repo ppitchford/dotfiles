@@ -7,5 +7,5 @@ if [[ -z $DISPLAY && -z $WAYLAND_DISPLAY && $(tty) == /dev/tty1 ]]; then
   comp=$(cat ~/.config/compositor 2>/dev/null || echo mango)
   export XDG_SESSION_TYPE=wayland
   export XDG_CURRENT_DESKTOP=$comp
-  exec dbus-run-session "$comp"
+  exec dbus-run-session sh -c "~/.local/bin/dwl-status | $comp -s ~/.local/bin/dwl-session"
 fi

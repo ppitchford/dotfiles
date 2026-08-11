@@ -1,0 +1,8 @@
+#!/bin/sh
+pipewire &
+pipewire-pulse &
+wireplumber &
+mako &
+hypridle &
+wl-paste --watch cliphist store &
+~/.local/bin/ornatus > /tmp/ornatus.log 2>&1 &
