@@ -1,4 +1,5 @@
 #!/bin/sh
+trap ':' USR1
 while :; do
 	vol=$(wpctl get-volume @DEFAULT_AUDIO_SINK@ 2>/dev/null)
 	case "$vol" in
@@ -15,5 +16,5 @@ while :; do
 	bat=$(cat /sys/class/power_supply/BAT1/capacity 2>/dev/null)
 	printf '%s | %s | %s%% | %s\n' \
 		"${net}" "${vol}" "$bat" "$(date '+%a %d %b  %H:%M')"
-	sleep 5
+	sleep 5 & wait $! 2>/dev/null
 done
