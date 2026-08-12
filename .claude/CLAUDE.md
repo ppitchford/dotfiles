@@ -22,7 +22,12 @@
 - Verify rather than assume — installed packages, enabled services, applied
   migrations, files that should exist, steps I may or may not have finished.
   Ask, or hand me a command that checks. The common failure is asking about the
-  obvious dependency while quietly assuming the non-obvious state.
+  obvious dependency while quietly assuming the non-obvious state. This applies
+  with more force to anything carried in from outside the current conversation —
+  prior sessions, summaries, this file. Claims about *state* decay: what's
+  installed, what's enabled, what's done. Claims about *method and structure*
+  don't. Before repeating an inherited claim about state, check it or mark it
+  unverified.
 - Don't report something as working without having run it. "The build should
   pass" is not "the build passes." If you can't run it, say which command I
   should run.
@@ -51,9 +56,18 @@
   Arch. Package names diverge from both, so don't infer an xbps name from a
   Debian one; check with `xbps-query -Rs`. The Framework's init is runit —
   systemd guidance applies to deploy targets, not this machine.
-- Wayland-only, MangoWM compositor. No X11 fallbacks, no XWayland assumptions.
+- Wayland-only, dwl v0.8 compositor — built from source at `~/projects/dwl`,
+  branch `local`, with the bar and gaps patches applied. `config.h` is tracked
+  deliberately via `git add -f`; upstream's `.gitignore` excludes it. Binary at
+  `~/.local/bin/dwl`. No X11 fallbacks, no XWayland assumptions.
   `~/.config/hypr/` holds only `hypridle` and `hyprlock` — standalone wlroots
   tools, not Hyprland. I do not run Hyprland.
+- dwl has no config reload; every `config.h` change needs logout and login.
+  `cp` over `~/.local/bin/dwl` fails `ETXTBSY` while it's running — `rm -f` the
+  target first. A `config.h` syntax error produces ~200 cascading "declared
+  static but never defined" warnings from `dwl.c`; read the first error line and
+  ignore the rest. wlroots scene rects use premultiplied alpha, so transparent
+  means `0x00000000`, not zero-alpha-with-colour.
 - Neovim (lazy.nvim), Kitty, zsh (zinit + starship + zoxide + fzf).
 - Project sources in `~/projects/<name>/`.
 - Binaries I build install to `~/.local/bin/` with `install -Dm755`. One
@@ -70,9 +84,10 @@
   like unstable rustfmt options is wanted. Remove the xbps rust packages first
   to avoid a PATH conflict with `/usr/sbin/cargo`.
 - `ornatus` owns the theme symlinks: `~/.config/kitty/current-theme.conf`,
-  `~/.config/fuzzel/fuzzel.ini`, `~/.config/mako/config`, and
-  `~/.config/mango/theme.conf` each point into `~/.config/theme/{dark,light}/`.
-  Edit the bundles, never the symlink targets in place.
+  `~/.config/fuzzel/fuzzel.ini`, and `~/.config/mako/config` each point into
+  `~/.config/theme/{dark,light}/`. Edit the bundles, never the symlink targets
+  in place. Live mid-session solar transitions work — `signal_reloads` fires
+  `makoctl reload` and mako re-reads through the symlink.
 - New tools resolve XDG paths (`XDG_CONFIG_HOME`, `XDG_CACHE_HOME`,
   `XDG_RUNTIME_DIR`) with `~/.config`-style fallbacks rather than hardcoding.
 - Dotfiles are a bare git repo with `$HOME` as the work tree. `~/.gitignore`
