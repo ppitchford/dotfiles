@@ -108,6 +108,7 @@ sys-update() {
 #     re-includes tracked areas by name. A new area is invisible to status —
 #     not just untracked, invisible — until you add a `!` line for it there.
 #     That header explains the scheme; read it before adding a new area.
+#     `dotfiles check-ignore -v <path>` names the rule and line that hides it.
 
 # A function rather than an alias so git's completion can be attached to it.
 dotfiles() { git --git-dir="$HOME/.dotfiles" --work-tree="$HOME" "$@"; }
