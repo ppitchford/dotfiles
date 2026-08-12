@@ -1,0 +1,78 @@
+#!/bin/sh
+# Update the Helium AppImage in place.
+#
+# Helium is installed outside XBPS, so `xbps-install -Su` never touches it.
+# This checks the upstream release, confirms, downloads to a temp file,
+# verifies the new binary runs, and only then swaps it into place. A failed
+# download or a broken build therefore leaves the working install alone.
+#
+# Launching is `helium`; this script is deliberately separate so the shim
+# on PATH stays a two-line exec.
+
+set -eu
+
+REPO="imputnet/helium-linux"
+APPIMAGE="$HOME/.local/opt/helium.AppImage"
+TMP="$HOME/.local/opt/.helium.AppImage.tmp"
+ARCH="x86_64"
+
+die() {
+	echo "helium-update: $1" >&2
+	exit 1
+}
+
+for cmd in curl jq; do
+	command -v "$cmd" >/dev/null 2>&1 || die "$cmd is required but not installed"
+done
+
+[ -x "$APPIMAGE" ] || die "no AppImage at $APPIMAGE"
+
+# Current version: `helium --version` prints "Helium 0.15.3.1 (Chromium ...)".
+current=$("$APPIMAGE" --version 2>/dev/null | awk '{print $2}')
+[ -n "$current" ] || die "could not determine the installed version"
+
+echo "installed: $current"
+
+latest=$(curl -fsSL "https://api.github.com/repos/$REPO/releases/latest" \
+	| jq -r '.tag_name')
+[ -n "$latest" ] && [ "$latest" != "null" ] || die "could not fetch the latest release"
+
+echo "latest:    $latest"
+
+if [ "$current" = "$latest" ]; then
+	echo "Already up to date."
+	exit 0
+fi
+
+if pgrep -f 'helium\.AppImage' >/dev/null 2>&1; then
+	echo
+	echo "Warning: Helium is running. The running instance holds the mounted"
+	echo "image open and will keep working, but restart it to pick up $latest."
+fi
+
+echo
+printf 'Update %s -> %s? [y/N] ' "$current" "$latest"
+read -r reply
+case "$reply" in
+	[yY]) ;;
+	*) echo "Cancelled."; exit 0 ;;
+esac
+
+url="https://github.com/$REPO/releases/download/$latest/helium-$latest-$ARCH.AppImage"
+
+# Temp file lives beside the target so the final mv is a same-filesystem
+# rename, and is removed on any failure or interrupt.
+trap 'rm -f "$TMP"' EXIT INT TERM
+
+echo "Downloading $latest..."
+curl -fL --progress-bar -o "$TMP" "$url" || die "download failed"
+chmod +x "$TMP"
+
+# Prove the new binary runs before it replaces a working one.
+new=$("$TMP" --version 2>/dev/null | awk '{print $2}')
+[ "$new" = "$latest" ] || die "downloaded build reports '$new', expected '$latest'"
+
+mv "$TMP" "$APPIMAGE"
+trap - EXIT INT TERM
+
+echo "Updated to $latest."
