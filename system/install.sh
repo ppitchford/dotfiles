@@ -25,6 +25,18 @@ install -m 644 -o root -g root \
     /etc/elogind/logind.conf
 echo "installed: /etc/elogind/logind.conf"
 
+# ── greetd and tuigreet ───────────────────────────────────────────────────────
+install -d -m 755 /etc/greetd
+install -m 644 -o root -g root \
+    "$ETC_SRC/greetd/config.toml" \
+    /etc/greetd/config.toml
+echo "installed: /etc/greetd/config.toml"
+
+install -m 755 -o root -g root \
+    "$ETC_SRC/greetd/tuigreet-start" \
+    /etc/greetd/tuigreet-start
+echo "installed: /etc/greetd/tuigreet-start"
+
 # ── acpid event and handler ───────────────────────────────────────────────────
 
 install -d -m 755 /etc/acpi/events
