@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=Symbols
+Comment=Pick an arrow, maths sign, punctuation mark or accent
+Exec=/home/philipp/.local/bin/varia symbols
+Icon=accessories-character-map
+Terminal=false
+Categories=Utility;
+Keywords=arrow;math;unicode;accent;punctuation;spanish;

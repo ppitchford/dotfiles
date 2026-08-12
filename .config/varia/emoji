@@ -1,0 +1,50 @@
+# Emoji picker source, read by `varia emoji`. One entry per line:
+# character, space, description. Lines beginning with # and blank lines are
+# ignored. Matching is fuzzy against the whole line, so descriptions act as
+# search terms.
+#
+# Characters here are non-ASCII by definition. If an entry stops working after
+# an edit, check it was not flattened to ASCII on the way in:
+#   grep -v '^#\|^$' FILE | LC_ALL=C grep -n '^[[:print:]] '
+
+👍 thumbs up yes approve
+👎 thumbs down no reject
+🙏 please thanks pray
+🎉 party celebrate congratulations
+✅ check done complete tick
+❌ cross no wrong fail
+⚠️ warning caution
+🔥 fire hot
+💡 idea lightbulb
+📌 pin important
+🚀 rocket launch ship
+😀 grinning smile
+😂 laughing crying tears joy
+🙂 slight smile
+😉 wink
+😅 sweat nervous laugh
+😊 blush happy
+🤔 thinking hmm
+😐 neutral straight face
+🙄 eye roll
+😢 sad crying
+😍 heart eyes love
+😎 sunglasses cool
+🤷 shrug dunno
+👀 eyes look watching
+💯 hundred perfect
+❤️ heart love red
+⭐ star favourite
+✨ sparkles nice
+🐛 bug defect
+🔧 wrench fix tool
+📝 note memo write
+📎 paperclip attach
+🔒 lock secure closed
+🔑 key access
+⏰ alarm clock time
+📅 calendar date
+☕ coffee
+🍺 beer
+🎂 cake birthday
+🎁 gift present

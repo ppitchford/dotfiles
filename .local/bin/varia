@@ -1,72 +1,88 @@
 #!/usr/bin/bash
 
-# ── unified-launcher ──────────────────────────────────────────────────────────
-# Single SUPER+Space entry point with prefix-based routing.
+# ── varia ─────────────────────────────────────────────────────────────────────
+# The miscellany fuzzel cannot do on its own. Applications are launched by
+# fuzzel natively; each mode here is reached from its own .desktop entry in
+# ~/.local/share/applications/, so the fuzzel prompt is the only entry point.
 #
-# Prefixes:
-#   (none)       → app launcher
-#   = <expr>     → calculator via qalc, result copied to clipboard
-#   / <query>    → file search via fd, open with xdg-open
-#   web <query>  → web search in Firefox via DuckDuckGo
-#   :clipboard   → clipboard history via cliphist
-#   :system      → system commands
+#   calc       calculator via qalc, result copied to clipboard
+#   files      file search under $HOME via fd, opened with xdg-open
+#   emoji      emoji picker, character copied to clipboard
+#   symbols    arrows, maths, typography and accents, likewise
+#   clipboard  clipboard history via cliphist
+#   system     suspend, lock, shutdown, reboot, logout
+#
+# Local only — nothing here touches the network.
 
-# ── Configuration ─────────────────────────────────────────────────────────────
+set -u
 
-SEARCH_ENGINE="https://duckduckgo.com/?q="
+# ── Menu ──────────────────────────────────────────────────────────────────────
+# fuzzel reads geometry, font and colours from ~/.config/fuzzel/fuzzel.ini,
+# which ornatus symlinks into the active theme bundle. Reads newline-separated
+# items on stdin, prints the selection.
 
-# ── App list ──────────────────────────────────────────────────────────────────
+menu() {
+    fuzzel --dmenu --prompt "$1"
+}
 
-declare -A APP_MAP
-
-load_apps() {
-    local dirs=("/usr/share/applications" "$HOME/.local/share/applications")
-    for dir in "${dirs[@]}"; do
-        [[ -d "$dir" ]] || continue
-        while IFS= read -r file; do
-            local name nodisplay
-            name=$(grep -m1 "^Name=" "$file" 2>/dev/null | cut -d= -f2-)
-            nodisplay=$(grep -m1 "^NoDisplay=" "$file" 2>/dev/null | cut -d= -f2-)
-            [[ -z "$name" || "$nodisplay" == "true" ]] && continue
-            APP_MAP["$name"]="$(basename "$file" .desktop)"
-        done < <(find "$dir" -name "*.desktop" 2>/dev/null)
-    done
+# Prompt for a line of text with no candidate list.
+prompt() {
+    fuzzel --dmenu --lines 0 --prompt "$1" < /dev/null
 }
 
 # ── Modes ─────────────────────────────────────────────────────────────────────
 
-mode_calculator() {
-    local expr="${1#= }"
+mode_calc() {
+    local expr
+    expr=$(prompt "= ")
     [[ -z "$expr" ]] && return
     local result
     result=$(qalc -t "$expr" 2>/dev/null | sed 's/\x1b\[[0-9;]*m//g' | xargs)
     [[ -z "$result" ]] && return
-    local selection
-    selection=$(printf '%s' "$result" | fuzzel --dmenu --prompt "= ")
-    [[ -z "$selection" ]] && return
+    # The result is shown rather than copied silently, so a misparse is visible
+    # before it reaches the clipboard. Return copies, Escape discards.
+    [[ -z "$(printf '%s' "$result" | menu "= ")" ]] && return
     printf '%s' "$result" | wl-copy
 }
 
 mode_files() {
-    local query="${1#/ }"
+    # One window: the whole candidate list is fed up front, so typing narrows
+    # and backspace widens. fd walks 264k paths in 70ms and fuzzel filters the
+    # result without perceptible lag, so there is no reason to prompt first.
+    #
+    # The exclusions are a denylist rather than an allowlist: a new noisy
+    # directory shows up as junk in the results and gets added here, whereas a
+    # missing allowlist entry would fail silently. .local costs ~/.local/bin,
+    # which is on $PATH anyway; nvim and mise account for 72k of its 74k.
     local selection
-    selection=$(fd --hidden --exclude .git --max-results 100 "$query" "$HOME" 2>/dev/null \
-        | fuzzel --dmenu --prompt "Open: " --lines 12)
+    selection=$(fd --hidden \
+        --exclude .git --exclude node_modules --exclude target \
+        --exclude .cache --exclude .cargo --exclude .npm \
+        --exclude .local --exclude go \
+        --exclude mozilla --exclude net.imput.helium \
+        --exclude 1Password --exclude obsidian \
+        . "$HOME" 2>/dev/null | menu "Open: ")
     [[ -z "$selection" ]] && return
     xdg-open "$selection" &>/dev/null &
 }
 
-mode_web() {
-    local query="${1#web }"
-    [[ -z "$query" ]] && return
-    local encoded
-    encoded=$(printf '%s' "$query" | sed 's/ /+/g')
-    firefox "${SEARCH_ENGINE}${encoded}" &>/dev/null &
+# Shared by the emoji and symbols modes: same format, same behaviour, two
+# files. $1 is the file under ~/.config/varia/, $2 the prompt.
+mode_pick() {
+    local list="$HOME/.config/varia/$1"
+    [[ -r "$list" ]] || return
+    local selection
+    # Comments and blank lines are stripped; the whole line is matched against,
+    # so the descriptions act as search terms.
+    selection=$(grep -v '^#\|^$' "$list" | menu "$2")
+    [[ -z "$selection" ]] && return
+    # First field is the character, the rest is its description.
+    printf '%s' "${selection%% *}" | wl-copy
 }
 
 mode_clipboard() {
     local selection
-    selection=$(cliphist list | fuzzel --dmenu --prompt "Clipboard: " --lines 12)
+    selection=$(cliphist list | menu "Clipboard: ")
     [[ -z "$selection" ]] && return
     cliphist decode <<< "$selection" | wl-copy
 }
@@ -74,7 +90,7 @@ mode_clipboard() {
 mode_system() {
     local selection
     selection=$(printf "  Suspend\n  Lock\n  Shutdown\n  Reboot\n  Logout" \
-        | fuzzel --dmenu --prompt "System: ")
+        | menu "System: ")
     case "$selection" in
         *Suspend)  hyprlock & sleep 0.5; zzz ;;
         *Lock)     hyprlock ;;
@@ -86,28 +102,15 @@ mode_system() {
 
 # ── Main ──────────────────────────────────────────────────────────────────────
 
-load_apps
-
-HINTS="= (calculator)
-/ (file search)
-web (web search)
-:clipboard
-:system"
-
-SELECTION=$(printf '%s\n\n%s\n' "$HINTS" "$(printf '%s\n' "${!APP_MAP[@]}" | sort)" \
-    | fuzzel --dmenu --prompt "› ")
-
-[[ -z "$SELECTION" ]] && exit 0
-
-case "$SELECTION" in
-    "= "*)       mode_calculator "$SELECTION" ;;
-    "/ "*)       mode_files "$SELECTION" ;;
-    "web "*)     mode_web "$SELECTION" ;;
-    ":clipboard") mode_clipboard ;;
-    ":system")   mode_system ;;
-    "= (calculator)"|"/ (file search)"|"web (web search)") exit 0 ;;
+case "${1-}" in
+    calc)      mode_calc ;;
+    files)     mode_files ;;
+    emoji)     mode_pick emoji "Emoji: " ;;
+    symbols)   mode_pick symbols "Symbol: " ;;
+    clipboard) mode_clipboard ;;
+    system)    mode_system ;;
     *)
-        desktop="${APP_MAP[$SELECTION]}"
-        [[ -n "$desktop" ]] && gtk-launch "$desktop" &>/dev/null &
+        printf 'usage: %s {calc|files|emoji|symbols|clipboard|system}\n' "${0##*/}" >&2
+        exit 2
         ;;
 esac

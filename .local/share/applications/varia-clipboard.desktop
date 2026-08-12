@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=Clipboard
+Comment=Recall an earlier clipboard entry
+Exec=/home/philipp/.local/bin/varia clipboard
+Icon=xclipboard
+Terminal=false
+Categories=Utility;
+Keywords=history;paste;cliphist;

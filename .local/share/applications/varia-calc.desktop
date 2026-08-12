@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=Calculator
+Comment=Evaluate an expression and copy the result
+Exec=/home/philipp/.local/bin/varia calc
+Icon=accessories-calculator
+Terminal=false
+Categories=Utility;
+Keywords=calc;math;convert;units;

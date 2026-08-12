@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=Power
+Comment=Suspend, lock, shut down, reboot or log out
+Exec=/home/philipp/.local/bin/varia system
+Icon=system-shutdown
+Terminal=false
+Categories=Utility;
+Keywords=suspend;lock;shutdown;reboot;logout;

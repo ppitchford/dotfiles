@@ -1,0 +1,117 @@
+# Symbol picker source, read by `varia symbols`. One entry per line:
+# character, space, description. Lines beginning with # and blank lines are
+# ignored. Matching is fuzzy against the whole line, so descriptions act as
+# search terms.
+#
+# Characters here are non-ASCII by definition. If an entry stops working after
+# an edit, check it was not flattened to ASCII on the way in:
+#   grep -v '^#\|^$' FILE | LC_ALL=C grep -n '^[[:print:]] '
+
+# ── Arrows ────────────────────────────────────────────────────────────────────
+→ right arrow
+← left arrow
+↑ up arrow
+↓ down arrow
+↔ left right arrow horizontal
+↕ up down arrow vertical
+⇒ double right arrow implies
+⇐ double left arrow
+⇔ double both iff equivalent
+↦ maps to
+↩ return carriage
+↪ forward hook
+⟶ long right arrow
+⟵ long left arrow
+➜ heavy right arrow
+▶ right triangle play
+◀ left triangle
+▲ up triangle
+▼ down triangle
+
+# ── Mathematics ───────────────────────────────────────────────────────────────
+± plus minus
+× multiply times
+÷ divide
+≈ approximately almost equal
+≠ not equal
+≤ less than or equal
+≥ greater than or equal
+∞ infinity
+√ square root radical
+∑ sum sigma
+∏ product pi
+∫ integral
+∂ partial derivative
+∆ delta change
+π pi
+µ micro mu
+° degree
+‰ per mille
+² squared superscript two
+³ cubed superscript three
+½ one half
+¼ one quarter
+¾ three quarters
+∈ element of member
+∉ not element of
+⊂ subset
+⊃ superset
+∪ union
+∩ intersection
+∀ for all universal
+∃ there exists
+¬ not negation
+∧ and conjunction
+∨ or disjunction
+⊕ xor circled plus
+≡ identical equivalent
+∝ proportional to
+
+# ── Typographic ───────────────────────────────────────────────────────────────
+— em dash
+– en dash
+… ellipsis dots
+“ left double quote
+” right double quote
+‘ left single quote
+’ right single quote apostrophe
+« left guillemet
+» right guillemet
+‹ left single guillemet
+› right single guillemet
+• bullet
+◦ white bullet
+‣ triangular bullet
+§ section
+¶ pilcrow paragraph
+† dagger
+‡ double dagger
+′ prime minutes feet
+″ double prime seconds inches
+© copyright
+® registered
+™ trademark
+№ numero number
+€ euro
+£ pound sterling
+¥ yen
+¢ cent
+¤ currency
+
+# ── Spanish ───────────────────────────────────────────────────────────────────
+á a acute lowercase
+é e acute lowercase
+í i acute lowercase
+ó o acute lowercase
+ú u acute lowercase
+ü u diaeresis umlaut lowercase
+ñ n tilde enye lowercase
+Á A acute uppercase
+É E acute uppercase
+Í I acute uppercase
+Ó O acute uppercase
+Ú U acute uppercase
+Ü U diaeresis umlaut uppercase
+Ñ N tilde enye uppercase
+¿ inverted question mark
+¡ inverted exclamation mark

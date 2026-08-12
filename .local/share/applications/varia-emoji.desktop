@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=Emoji
+Comment=Pick an emoji or symbol and copy it
+Exec=/home/philipp/.local/bin/varia emoji
+Icon=preferences-desktop-emoticons
+Terminal=false
+Categories=Utility;
+Keywords=symbol;unicode;arrow;accent;

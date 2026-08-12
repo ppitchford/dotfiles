@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=Files
+Comment=Search for a file and open it
+Exec=/home/philipp/.local/bin/varia files
+Icon=system-file-manager
+Terminal=false
+Categories=Utility;
+Keywords=find;search;open;fd;
