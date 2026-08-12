@@ -65,3 +65,4 @@
 # Root-owned files mirrored for versioning; installed by system/install.sh.
 
 !/system
+.local/bin/dwl
