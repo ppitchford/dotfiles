@@ -1,0 +1,63 @@
+/* Waybar - static dark stylesheet
+   Palette: rose-pine (base #191724, text #e0def4, muted #6e6a86) */
+
+* {
+  font-family: "Inter SemiBold", "JetBrainsMono Nerd Font", sans-serif;
+  font-weight: 600;
+  font-size: 13px;
+  border: none;
+  border-radius: 0;
+  min-height: 0;
+}
+
+window#waybar {
+  background-color: transparent;
+  color: #e0def4;
+  border: none;
+  border-bottom: none;
+  box-shadow: none;
+}
+
+#tags button {
+  padding: 0 8px;
+  color: #6e6a86;
+  background-color: transparent;
+}
+
+#tags button.occupied {
+  color: #e0def4;
+}
+
+#tags button.focused {
+  color: #191724;
+  background-color: #31748f;
+}
+
+#tags button.urgent {
+  color: #191724;
+  background-color: #eb6f92;
+}
+
+#window {
+  color: #908caa;
+}
+
+#pulseaudio,
+#network,
+#battery,
+#clock {
+  padding: 0 6px;
+  color: #e0def4;
+}
+
+#battery.warning {
+  color: #f6c177;
+}
+
+#battery.critical {
+  color: #eb6f92;
+}
+
+#network.disconnected {
+  color: #eb6f92;
+}

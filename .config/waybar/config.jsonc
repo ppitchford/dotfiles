@@ -1,0 +1,43 @@
+{
+  "layer": "top",
+  "position": "top",
+  "height": 26,
+  "spacing": 8,
+
+  "modules-left":   ["dwl/tags"],
+  "modules-center": ["dwl/window"],
+  "modules-right":  ["pulseaudio", "network", "battery", "clock"],
+
+  "dwl/tags": {
+    "num-tags": 9
+  },
+
+  "dwl/window": {
+    "max-length": 80
+  },
+
+  "pulseaudio": {
+    "format": "\uf028   {volume}%",
+    "format-muted": "\uf026   muted",
+    "on-click": "wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle"
+  },
+
+  "network": {
+    "format-wifi": "\uf1eb",
+    "format-ethernet": "\uf6ff",
+    "format-disconnected": "\uf05e",
+    "tooltip-format": "{essid}  {ipaddr}"
+  },
+
+  "battery": {
+    "states": { "warning": 30, "critical": 15 },
+    "format": "\uf240   {capacity}%",
+    "format-charging": "\uf0e7   {capacity}%",
+    "tooltip-format": "{timeTo}"
+  },
+
+  "clock": {
+    "format": "{:%a %d %b  %H:%M}",
+    "tooltip-format": "<tt>{calendar}</tt>"
+  }
+}
