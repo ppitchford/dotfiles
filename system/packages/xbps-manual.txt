@@ -26,13 +26,11 @@ ffmpeg
 file-devel
 firefox
 flatpak
-foot
 fprintd
 fuzzel
 fwupd
 fzf
 geoclue2
-gimp
 git
 github-cli
 google-fonts-ttf
@@ -72,6 +70,7 @@ nodejs
 okular
 pam-devel
 pango-devel
+papirus-icon-theme
 pipewire
 pkg-config
 polkit
