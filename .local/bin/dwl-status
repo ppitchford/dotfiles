@@ -2,13 +2,18 @@
 while :; do
 	vol=$(wpctl get-volume @DEFAULT_AUDIO_SINK@ 2>/dev/null)
 	case "$vol" in
-		*MUTED*) vol="muted" ;;
-		*) vol=$(printf '%s' "$vol" | awk '{printf "%.0f%%", $2*100}') ;;
+		*MUTED*) vol="󰝟" ;;
+		*) vol=$(printf '%s' "$vol" | awk '{printf "󰕾 %.0f%%", $2*100}') ;;
 	esac
 	net=$(iwctl station wlp192s0 show 2>/dev/null | awk -F'  +' '/Connected network/{print $3}')
+	if [ -n "$net" ]; then
+		net="󰖩"
+	else
+		net="󰖪"
+	fi
 	bt=$(bluetoothctl devices Connected 2>/dev/null | head -1 | cut -d' ' -f3-)
 	bat=$(cat /sys/class/power_supply/BAT1/capacity 2>/dev/null)
 	printf '%s | %s | %s%% | %s\n' \
-		"${net:-offline}" "${vol:-—}" "$bat" "$(date '+%a %d %b  %H:%M')"
+		"${net}" "${vol}" "$bat" "$(date '+%a %d %b  %H:%M')"
 	sleep 5
 done
