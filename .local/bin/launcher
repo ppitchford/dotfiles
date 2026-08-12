@@ -76,11 +76,11 @@ mode_system() {
     selection=$(printf "  Suspend\n  Lock\n  Shutdown\n  Reboot\n  Logout" \
         | fuzzel --dmenu --prompt "System: ")
     case "$selection" in
-        *Suspend)  loginctl suspend ;;
-        *Lock)     swaylock -f ;;
-        *Shutdown) loginctl poweroff ;;
-        *Reboot)   loginctl reboot ;;
-        *Logout)   mmsg -d quit ;;
+        *Suspend)  hyprlock & sleep 0.5; zzz ;;
+        *Lock)     hyprlock ;;
+        *Shutdown) poweroff ;;
+        *Reboot)   reboot ;;
+        *Logout)   pkill -x dwl ;;
     esac
 }
 
