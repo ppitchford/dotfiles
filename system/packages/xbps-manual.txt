@@ -1,6 +1,7 @@
 7zip
 MesaLib-devel
 NetworkManager
+Waybar
 amdvlk
 autoconf
 autoconf-archive
@@ -56,6 +57,7 @@ linux-headers
 lshw
 make
 mako
+mangowc
 mesa-dri
 mesa-vaapi
 mesa-vulkan-radeon

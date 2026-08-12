@@ -50,7 +50,6 @@
 !/.local/bin
 /.local/bin/ornatus
 /.local/bin/frame
-/.local/bin/dwl
 /.local/bin/obsidian/
 
 !/.local/share
