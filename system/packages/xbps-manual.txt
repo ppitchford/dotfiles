@@ -109,7 +109,6 @@ wget
 wireplumber
 wl-clipboard
 wlr-randr
-wlroots0.19-devel
 wmenu
 xdg-desktop-portal-gtk
 xdg-desktop-portal-termfilechooser
