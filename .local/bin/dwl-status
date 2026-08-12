@@ -1,6 +1,7 @@
 #!/bin/sh
 trap ':' USR1
 echo $$ > /run/user/1000/dwl-status.pid
+trap 'rm -f /run/user/1000/dwl-status.pid' EXIT INT TERM
 while :; do
 	vol=$(wpctl get-volume @DEFAULT_AUDIO_SINK@ 2>/dev/null)
 	case "$vol" in
