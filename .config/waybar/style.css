@@ -1,11 +1,10 @@
-/* Waybar - static stylesheet, Iceberg Dark glyphs
+/* Waybar - static stylesheet, Catppuccin Mocha glyphs
    Background is opaque #373d49: the measured modal colour of the wallpaper
    region beneath the bar on both outputs, sampled from
    ~/Pictures/wallpapers/wallpaper-1-3840.jpg at 3440x1440 and 2880x1920.
    This pins the bar to that image at those geometries — changing the
    wallpaper, either resolution, or the bar height will make it visible as a
-   panel. Re-sample before changing any of the three.
-   Palette: iceberg dark (fg #c6c8d1, muted #6b7089, lavender #a093c7) */
+   panel. Re-sample before changing any of the three. */
 
 * {
   font-family: "Inter SemiBold", "JetBrainsMono Nerd Font", sans-serif;
@@ -18,7 +17,7 @@
 
 window#waybar {
   background-color: #373d49;
-  color: #c6c8d1;
+  color: #cdd6f4;
   border: none;
   border-bottom: none;
   box-shadow: none;
@@ -26,26 +25,26 @@ window#waybar {
 
 #tags button {
   padding: 0 8px;
-  color: #6b7089;
+  color: #6c7086;
   background-color: transparent;
 }
 
 #tags button.occupied {
-  color: #c6c8d1;
+  color: #cdd6f4;
 }
 
 #tags button.focused {
-  color: #161821;
-  background-color: #a093c7;
+  color: #11111b;
+  background-color: #cba6f7;
 }
 
 #tags button.urgent {
-  color: #161821;
-  background-color: #e27878;
+  color: #11111b;
+  background-color: #f38ba8;
 }
 
 #window {
-  color: #6b7089;
+  color: #6c7086;
 }
 
 #pulseaudio,
@@ -53,17 +52,17 @@ window#waybar {
 #battery,
 #clock {
   padding: 0 6px;
-  color: #c6c8d1;
+  color: #cdd6f4;
 }
 
 #battery.warning {
-  color: #e2a478;
+  color: #fab387;
 }
 
 #battery.critical {
-  color: #e27878;
+  color: #f38ba8;
 }
 
 #network.disconnected {
-  color: #e27878;
+  color: #f38ba8;
 }
