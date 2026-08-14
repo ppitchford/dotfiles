@@ -25,17 +25,10 @@ install -m 644 -o root -g root \
     /etc/elogind/logind.conf
 echo "installed: /etc/elogind/logind.conf"
 
-# ── greetd and tuigreet ───────────────────────────────────────────────────────
-install -d -m 755 /etc/greetd
-install -m 644 -o root -g root \
-    "$ETC_SRC/greetd/config.toml" \
-    /etc/greetd/config.toml
-echo "installed: /etc/greetd/config.toml"
-
-install -m 755 -o root -g root \
-    "$ETC_SRC/greetd/tuigreet-start" \
-    /etc/greetd/tuigreet-start
-echo "installed: /etc/greetd/tuigreet-start"
+# ── Login ─────────────────────────────────────────────────────────────────────
+# Nothing to install. Login is agetty on tty1, which Void enables by default;
+# `.zprofile` execs the compositor from the tty1 login shell. greetd and tuigreet
+# were removed 2026-08-14 — see the Desktop made for one note for the reasoning.
 
 # ── acpid event and handler ───────────────────────────────────────────────────
 

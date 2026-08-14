@@ -35,7 +35,6 @@ geoclue2
 git
 github-cli
 google-fonts-ttf
-greetd
 grim
 grub-x86_64-efi
 hugo
@@ -96,7 +95,6 @@ slurp
 socat
 starship
 tlp
-tuigreet
 unzip
 uv
 void-repo-nonfree
