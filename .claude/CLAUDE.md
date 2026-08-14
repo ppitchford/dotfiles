@@ -56,18 +56,46 @@
   Arch. Package names diverge from both, so don't infer an xbps name from a
   Debian one; check with `xbps-query -Rs`. The Framework's init is runit —
   systemd guidance applies to deploy targets, not this machine.
-- Wayland-only, dwl v0.8 compositor — built from source at `~/projects/dwl`,
-  branch `local`, with the bar and gaps patches applied. `config.h` is tracked
-  deliberately via `git add -f`; upstream's `.gitignore` excludes it. Binary at
-  `~/.local/bin/dwl`. No X11 fallbacks, no XWayland assumptions.
-  `~/.config/hypr/` holds only `hypridle` and `hyprlock` — standalone wlroots
-  tools, not Hyprland. I do not run Hyprland.
-- dwl has no config reload; every `config.h` change needs logout and login.
-  `cp` over `~/.local/bin/dwl` fails `ETXTBSY` while it's running — `rm -f` the
-  target first. A `config.h` syntax error produces ~200 cascading "declared
-  static but never defined" warnings from `dwl.c`; read the first error line and
-  ignore the rest. wlroots scene rects use premultiplied alpha, so transparent
-  means `0x00000000`, not zero-alpha-with-colour.
+- Wayland-only, MangoWM — xbps package `mangowc`, binary `/usr/bin/mango`. The
+  package name is not the binary name, which matters for `xbps-query` and
+  updates. Config at `~/.config/mango/config.conf`. No X11 fallbacks, no
+  XWayland assumptions. `~/.config/hypr/` holds only `hypridle` and `hyprlock` —
+  standalone wlroots tools, not Hyprland. I do not run Hyprland.
+- mango reloads at runtime: `mmsg dispatch reload_config` returns
+  `{"success":true}`, which distinguishes a failed reload from a setting that
+  did nothing — the keybind does not. No rebuild, no relogin.
+- `/etc/mango/config.conf` is a shipped *sample*, not the compiled defaults.
+  Never delete a key on the grounds that it matches that file. Confirm the
+  behaviour is identical with the key absent, then delete.
+- `~/projects/mango` is a source checkout kept for reading, and it tracks
+  upstream rather than the installed binary — verify which tag is checked out
+  before reading source to explain runtime behaviour. `~/projects/dwl` is
+  retired, reference only; anything describing dwl as the running compositor is
+  stale.
+- wlroots scene rects use premultiplied alpha, so transparent means
+  `0x00000000`, not zero-alpha-with-colour.
+- Login is agetty on tty1 — no display manager. `.zprofile` guards on tty1 and
+  `exec`s `dbus-run-session /usr/bin/mango -s ~/.local/bin/wayland-session`, so
+  the session *replaces* the login shell: the process runit supervises as
+  `agetty-tty1` is the session itself. This governs anything that spawns the
+  session — stopping the service kills the session outright, and unlinking it
+  without stopping leaves an orphan that the next login stacks a second
+  compositor beside. End the old session deliberately when changing login.
+- `~/.local/bin/wayland-session` is the single home for session startup; the
+  compositor config carries no autostart list.
+- Unprivileged power actions go through `loginctl` — `poweroff`, `reboot`,
+  `suspend`. The bare binaries and `zzz` are root-only with no setuid and fail
+  silently for my user.
+- elogind reports `down` under runit and is fine: the wrapper re-execs and
+  orphans the daemon to PID 1, so runit loses the pid. `pgrep -a elogind`
+  showing `elogind-daemon` is the real check, not `sv status`.
+- `~/system` mirrors the root-owned files this machine needs, installed by
+  `~/system/install.sh` — idempotent and self-elevating. Package manifests come
+  from `~/system/packages/dump.sh`. Anything hand-written into `/etc` belongs in
+  that mirror or it is lost on rebuild.
+- Desktop configuration detail — theme bundles, waybar, hyprlock, and the open
+  threads — lives in the zettelkasten note `projects/Desktop made for one.md`,
+  not here.
 - Neovim (lazy.nvim), Kitty, zsh (zinit + starship + zoxide + fzf).
 - Project sources in `~/projects/<name>/`.
 - Binaries I build install to `~/.local/bin/` with `install -Dm755`. One
