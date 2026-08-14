@@ -92,11 +92,11 @@ mode_system() {
     selection=$(printf "  Suspend\n  Lock\n  Shutdown\n  Reboot\n  Logout" \
         | menu "System: ")
     case "$selection" in
-        *Suspend)  hyprlock & sleep 0.5; zzz ;;
+        *Suspend)  hyprlock & sleep 0.5; loginctl suspend ;;
         *Lock)     hyprlock ;;
-        *Shutdown) poweroff ;;
-        *Reboot)   reboot ;;
-        *Logout)   pkill -x dwl ;;
+        *Shutdown) loginctl poweroff ;;
+        *Reboot)   loginctl reboot ;;
+        *Logout)   pkill -x mango ;;
     esac
 }
 
