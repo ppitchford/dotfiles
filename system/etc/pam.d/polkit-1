@@ -1,0 +1,17 @@
+#%PAM-1.0
+# PAM stack for polkit. 1Password's unlock, CLI, and SSH-agent actions are all
+# auth_self, so they authenticate through this stack; without this file polkit
+# falls back to /etc/pam.d/other, which is pam_unix only — password, no reader.
+#
+# pam_fprintd is `sufficient`, not `required`: a missed scan, a busy sensor, or
+# no enrolled finger falls through to the password prompt in system-auth rather
+# than locking the action out entirely.
+#
+# hyprlock does not use this file. It drives fprintd over D-Bus directly.
+
+auth		sufficient	pam_fprintd.so
+auth		include		system-auth
+
+account		include		system-auth
+password	include		system-auth
+session		include		system-auth

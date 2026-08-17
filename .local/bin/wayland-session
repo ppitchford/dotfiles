@@ -3,6 +3,7 @@ pipewire &
 pipewire-pulse &
 wireplumber &
 mako &
+/usr/libexec/hyprpolkitagent &
 hypridle &
 wl-paste --watch cliphist store &
 waybar &

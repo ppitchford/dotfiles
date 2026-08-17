@@ -30,6 +30,27 @@ echo "installed: /etc/elogind/logind.conf"
 # `.zprofile` execs the compositor from the tty1 login shell. greetd and tuigreet
 # were removed 2026-08-14 — see the Desktop made for one note for the reasoning.
 
+# ── Root-owned /run/dbus ──────────────────────────────────────────────────────
+# Runs before any service, so it wins the race against /etc/sv/dbus/run, which
+# would otherwise create the directory as dbus:dbus. 1Password rejects polkit
+# for system authentication unless the bus socket's path is root-owned.
+
+install -m 755 -o root -g root \
+    "$ETC_SRC/runit/core-services/06-dbus-root-dir.sh" \
+    /etc/runit/core-services/06-dbus-root-dir.sh
+echo "installed: /etc/runit/core-services/06-dbus-root-dir.sh"
+
+# ── polkit fingerprint authentication ─────────────────────────────────────────
+# Lets polkit actions accept the Goodix reader before falling back to a password.
+# 1Password unlocks through polkit, so this is what wires the reader to the app.
+
+install -d -m 755 /etc/pam.d
+
+install -m 644 -o root -g root \
+    "$ETC_SRC/pam.d/polkit-1" \
+    /etc/pam.d/polkit-1
+echo "installed: /etc/pam.d/polkit-1"
+
 # ── acpid event and handler ───────────────────────────────────────────────────
 
 install -d -m 755 /etc/acpi/events
@@ -89,6 +110,8 @@ fi
 echo ""
 echo "Verify with:"
 echo "  sudo sv status acpid"
+echo "  pkexec true                      # should ask for the reader first"
+echo "  stat -c '%U:%G' /run/dbus        # must be root:root after a reboot"
 echo "  grep -E '^HandleLidSwitch' /etc/elogind/logind.conf"
 echo "  readlink /etc/localtime          # follows your location on connect"
 echo "  cat /var/log/tz-from-ip.log      # why it did or didn't change"
