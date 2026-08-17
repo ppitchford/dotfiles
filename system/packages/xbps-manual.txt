@@ -38,6 +38,7 @@ google-fonts-ttf
 grim
 grub-x86_64-efi
 hugo
+hyprpolkitagent
 hyprutils
 inotify-tools
 iwd
