@@ -74,3 +74,9 @@
 # Root-owned files mirrored for versioning; installed by system/install.sh.
 
 !/system
+
+# ── ~/bin ─────────────────────────────────────────────────────────────────────
+# Scheduled scripts run from cron. The crontab itself lives in a root-owned
+# spool and cannot be tracked, so the schedule is documented in each script.
+
+!/bin
