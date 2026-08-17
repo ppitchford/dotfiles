@@ -1,0 +1,22 @@
+# 1Password for Linux custom browser allowlist.
+#
+# 1Password only speaks to a browser it recognises. Anything not on its built-in
+# list needs its binary's filename here, one per line; `#` comments are ignored.
+#
+# Helium is the daily browser and is not a browser 1Password knows, so without
+# this line the extension cannot reach the desktop app at all — and with no
+# desktop app there is no system-authentication prompt, which is what puts the
+# fingerprint reader in front of an unlock.
+#
+# The name must match the browser binary's filename, which is why this is bare
+# `helium` and not a path: the launcher at ~/.local/bin/helium execs
+# /opt/helium/helium-wrapper, which in turn execs /opt/helium/helium.
+#
+# Naming the browser here is necessary but not sufficient. 1Password also stats
+# the binary and refuses it if it looks user-tamperable, so the install has to
+# stay root-owned and outside $HOME. An AppImage fails even earlier: it runs
+# from a user FUSE mount, and the kernel denies 1Password-BrowserSupport — which
+# is setgid `onepassword` — any access to a mount whose gid does not match. See
+# the header of ~/.local/bin/helium-update.
+
+helium

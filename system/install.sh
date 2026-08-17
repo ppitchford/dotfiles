@@ -59,6 +59,18 @@ install -m 644 -o root -g root \
     /etc/pam.d/sudo
 echo "installed: /etc/pam.d/sudo"
 
+# ── 1Password browser allowlist ───────────────────────────────────────────────
+# Helium is not a browser 1Password recognises, so without this the extension
+# cannot reach the desktop app, and the unlock never reaches polkit or the
+# reader. 1Password reads it on start; restart the app after a change.
+
+install -d -m 755 /etc/1password
+
+install -m 644 -o root -g root \
+    "$ETC_SRC/1password/custom_allowed_browsers" \
+    /etc/1password/custom_allowed_browsers
+echo "installed: /etc/1password/custom_allowed_browsers"
+
 # ── acpid event and handler ───────────────────────────────────────────────────
 
 install -d -m 755 /etc/acpi/events
@@ -121,6 +133,7 @@ fi
 echo ""
 echo "Verify with:"
 echo "  sudo sv status acpid"
+echo "  cat /etc/1password/custom_allowed_browsers   # must list helium"
 echo "  pkexec true                      # should ask for the reader first"
 echo "  stat -c '%U:%G' /run/dbus        # must be root:root after a reboot"
 echo "  sudo -k && sudo true             # should ask for the reader first"

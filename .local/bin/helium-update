@@ -1,37 +1,74 @@
 #!/bin/sh
-# Update the Helium AppImage in place.
+# Install or update Helium in /opt.
 #
 # Helium is installed outside XBPS, so `xbps-install -Su` never touches it.
-# This checks the upstream release, confirms, downloads to a temp file,
-# verifies the new binary runs, and only then swaps it into place. A failed
-# download or a broken build therefore leaves the working install alone.
+# This checks the upstream release, confirms, downloads the tarball, verifies
+# it against the pinned signing key below, extracts and runs the new build,
+# and only then swaps it into place. A failed download, a bad signature, or a
+# broken build therefore leaves the working install alone.
+#
+# With nothing at $PREFIX it installs the latest release instead, so a rebuilt
+# machine needs only the dotfiles clone and one run of this script. The tree is
+# far too large for the dotfiles or ~/system mirrors, so this is the only
+# record of how Helium gets onto the machine.
+#
+# Everything up to the swap runs unprivileged; only the two steps that write
+# under /opt use sudo.
+#
+# The install is deliberately root-owned and outside $HOME, and deliberately
+# not an AppImage. 1Password verifies the browser binary before it will accept
+# a native-messaging connection, and rejects both a user-writable path
+# (BinaryPermissions) and an AppImage — 1Password-BrowserSupport is setgid
+# `onepassword`, and the kernel denies a process whose gid does not match the
+# mounting user any access to a user FUSE mount. Either layout leaves the
+# browser extension unable to reach the desktop app.
 #
 # Launching is `helium`; this script is deliberately separate so the shim
-# on PATH stays a two-line exec.
+# on PATH stays a one-line exec.
 
 set -eu
 
 REPO="imputnet/helium-linux"
-APPIMAGE="$HOME/.local/opt/helium.AppImage"
-TMP="$HOME/.local/opt/.helium.AppImage.tmp"
+PREFIX="/opt/helium"
 ARCH="x86_64"
+
+# https://github.com/imputnet/helium-linux/blob/main/pubkey.asc
+# BE67 7C19 89D3 5EAB 2C5F  26C9 3516 01AD 01D6 378E
+SIGNING_KEY='-----BEGIN PGP PUBLIC KEY BLOCK-----
+
+xjMEaOqhEBYJKwYBBAHaRw8BAQdA+0OK9OgI98hQGR0ZI5aVuXxdeDU+6eyLiKhH
+4pwAaH7NQEhlbGl1bSBzaWduaW5nIGtleSAoaHR0cHM6Ly9oZWxpdW0uY29tcHV0
+ZXIvKSA8aGVsaXVtQGltcHV0Lm5ldD7CmQQTFgoAQRYhBL5nfBmJ016rLF8myTUW
+Aa0B1jeOBQJo6qEQAhsDBQkFo5qABQsJCAcCAiICBhUKCQgLAgQWAgMBAh4HAheA
+AAoJEDUWAa0B1jeO31AA/0w52qczu5T4w0miS3up03c4uIJtdw2MfHFLIEAQN7T2
+AP9ZI9ozR7C2/isB0GLeQM6o10DGiXGNA0T2kmNEJqIXC844BGjqoRASCisGAQQB
+l1UBBQEBB0AoNTUK0xOCCMLTWO1Nvhe9el/bNuyTyMmincD7hXu5JwMBCAfCfgQY
+FgoAJhYhBL5nfBmJ016rLF8myTUWAa0B1jeOBQJo6qEQAhsMBQkFo5qAAAoJEDUW
+Aa0B1jeOLYEA/ReQcxHx9axm3rYYad+1XeQQyiIPCjclCVMyeAXqS5XOAP0RBc9/
+md8JlXqOCGwmHuOk3VVkR5EjCgm2KJ8hqdhwBA==
+=Chk7
+-----END PGP PUBLIC KEY BLOCK-----'
 
 die() {
 	echo "helium-update: $1" >&2
 	exit 1
 }
 
-for cmd in curl jq; do
+for cmd in curl jq gpg gpgv tar sudo; do
 	command -v "$cmd" >/dev/null 2>&1 || die "$cmd is required but not installed"
 done
 
-[ -x "$APPIMAGE" ] || die "no AppImage at $APPIMAGE"
-
-# Current version: `helium --version` prints "Helium 0.15.3.1 (Chromium ...)".
-current=$("$APPIMAGE" --version 2>/dev/null | awk '{print $2}')
-[ -n "$current" ] || die "could not determine the installed version"
-
-echo "installed: $current"
+if [ -x "$PREFIX/helium" ]; then
+	# Current version: `helium --version` prints "Helium 0.15.5.1 (Chromium ...)".
+	current=$("$PREFIX/helium" --version 2>/dev/null | awk '{print $2}')
+	[ -n "$current" ] || die "could not determine the version installed at $PREFIX"
+	echo "installed: $current"
+elif [ -e "$PREFIX" ]; then
+	die "$PREFIX exists but has no helium binary; move it aside first"
+else
+	current=""
+	echo "installed: none"
+fi
 
 latest=$(curl -fsSL "https://api.github.com/repos/$REPO/releases/latest" \
 	| jq -r '.tag_name')
@@ -44,35 +81,86 @@ if [ "$current" = "$latest" ]; then
 	exit 0
 fi
 
-if pgrep -f 'helium\.AppImage' >/dev/null 2>&1; then
-	echo
-	echo "Warning: Helium is running. The running instance holds the mounted"
-	echo "image open and will keep working, but restart it to pick up $latest."
-fi
-
 echo
-printf 'Update %s -> %s? [y/N] ' "$current" "$latest"
+if [ -z "$current" ]; then
+	printf 'Install %s? [y/N] ' "$latest"
+else
+	# An install is swapped directory-for-directory. A running Chromium opens
+	# .pak and locale files lazily, so pulling the tree out from under it
+	# breaks the live instance in ways that surface much later.
+	if pgrep -f "$PREFIX/helium" >/dev/null 2>&1; then
+		die "Helium is running; quit it before updating"
+	fi
+	printf 'Update %s -> %s? [y/N] ' "$current" "$latest"
+fi
 read -r reply
 case "$reply" in
 	[yY]) ;;
 	*) echo "Cancelled."; exit 0 ;;
 esac
 
-url="https://github.com/$REPO/releases/download/$latest/helium-$latest-$ARCH.AppImage"
+base="helium-$latest-${ARCH}_linux.tar.xz"
+url="https://github.com/$REPO/releases/download/$latest/$base"
 
-# Temp file lives beside the target so the final mv is a same-filesystem
-# rename, and is removed on any failure or interrupt.
-trap 'rm -f "$TMP"' EXIT INT TERM
+work=$(mktemp -d "${TMPDIR:-/tmp}/helium-update.XXXXXX")
+# The staging tree lives beside the target so the final swap is a
+# same-filesystem rename. Both are cleaned up on any failure or interrupt.
+stage="$PREFIX.new"
+cleanup() {
+	rm -rf "$work"
+	[ -e "$stage" ] && sudo rm -rf "$stage"
+	return 0
+}
+trap cleanup EXIT INT TERM
 
 echo "Downloading $latest..."
-curl -fL --progress-bar -o "$TMP" "$url" || die "download failed"
-chmod +x "$TMP"
+curl -fL --progress-bar -o "$work/$base" "$url" || die "download failed"
+curl -fsSL -o "$work/$base.asc" "$url.asc" || die "signature download failed"
 
-# Prove the new binary runs before it replaces a working one.
-new=$("$TMP" --version 2>/dev/null | awk '{print $2}')
+# gpgv against a keyring holding only the pinned key: a good signature can
+# only have come from that key, and nothing touches the real keyring.
+printf '%s\n' "$SIGNING_KEY" | gpg --dearmor > "$work/keyring.gpg" \
+	|| die "could not build the verification keyring"
+gpgv --keyring "$work/keyring.gpg" "$work/$base.asc" "$work/$base" \
+	|| die "SIGNATURE VERIFICATION FAILED for $base"
+
+# Unpacked as root and stripped of group and other write, or 1Password rejects
+# the result as user-tamperable and the extension loses the desktop app.
+echo "Unpacking to $stage..."
+sudo sh -c '
+	set -eu
+	rm -rf "$1.new"
+	mkdir "$1.new"
+	tar -xJf "$2" -C "$1.new" --strip-components=1
+	chown -R root:root "$1.new"
+	chmod -R go-w "$1.new"
+' _ "$PREFIX" "$work/$base" || die "unpack failed"
+
+# Prove the new build runs before it replaces a working one.
+new=$("$stage/helium" --version 2>/dev/null | awk '{print $2}')
 [ "$new" = "$latest" ] || die "downloaded build reports '$new', expected '$latest'"
 
-mv "$TMP" "$APPIMAGE"
-trap - EXIT INT TERM
+sudo sh -c '
+	set -eu
+	rm -rf "$1.old"
+	if [ -e "$1" ]; then
+		mv "$1" "$1.old"
+	fi
+	mv "$1.new" "$1"
+	rm -rf "$1.old"
+' _ "$PREFIX" || die "swap failed"
 
-echo "Updated to $latest."
+trap - EXIT INT TERM
+rm -rf "$work"
+
+# helium.desktop is tracked in dotfiles and asks for icon `helium`; the artwork
+# only ships in the tarball, so it is refreshed from whatever build is current.
+install -Dm644 "$PREFIX/product_logo_256.png" \
+	"${XDG_DATA_HOME:-$HOME/.local/share}/icons/hicolor/256x256/apps/helium.png" \
+	|| echo "helium-update: warning: could not install the launcher icon" >&2
+
+if [ -z "$current" ]; then
+	echo "Installed $latest."
+else
+	echo "Updated to $latest."
+fi

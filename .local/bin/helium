@@ -1,2 +1,11 @@
 #!/bin/sh
-exec "$HOME/.local/opt/helium.AppImage" "$@"
+# helium-wrapper sets LD_LIBRARY_PATH and CHROME_WRAPPER, then execs the real
+# binary, so the browser process ends up at /opt/helium/helium.
+#
+# The install lives in /opt, root-owned, because 1Password refuses to talk to a
+# browser it considers user-tamperable: anything under $HOME fails its
+# BinaryPermissions check, and an AppImage fails even earlier, since
+# 1Password-BrowserSupport is setgid `onepassword` and the kernel denies a
+# mismatched gid any access to a user FUSE mount. Either layout leaves the
+# browser extension unable to reach the desktop app at all.
+exec /opt/helium/helium-wrapper "$@"
