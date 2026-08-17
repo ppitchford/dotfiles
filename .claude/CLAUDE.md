@@ -87,8 +87,10 @@
   `suspend`. The bare binaries and `zzz` are root-only with no setuid and fail
   silently for my user.
 - elogind reports `down` under runit and is fine: the wrapper re-execs and
-  orphans the daemon to PID 1, so runit loses the pid. `pgrep -a elogind`
-  showing `elogind-daemon` is the real check, not `sv status`.
+  orphans the daemon to PID 1, so runit loses the pid. `pgrep -x elogind`
+  matching is the real check, not `sv status`. The process is
+  `/usr/libexec/elogind/elogind` and its name is `elogind` — not
+  `elogind-daemon`, which matches nothing.
 - `~/system` mirrors the root-owned files this machine needs, installed by
   `~/system/install.sh` — idempotent and self-elevating. Package manifests come
   from `~/system/packages/dump.sh`. Anything hand-written into `/etc` belongs in

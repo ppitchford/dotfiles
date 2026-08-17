@@ -98,11 +98,14 @@ fi
 
 # ── Reload elogind ────────────────────────────────────────────────────────────
 
-if pgrep -x elogind-daemon > /dev/null; then
-    pkill -HUP -x elogind-daemon
-    echo "reloaded: elogind-daemon (SIGHUP)"
+# The process is /usr/libexec/elogind/elogind, whose name is `elogind`. It was
+# matched as `elogind-daemon` here, which matches nothing — so this always took
+# the else branch and never actually reloaded.
+if pgrep -x elogind > /dev/null; then
+    pkill -HUP -x elogind
+    echo "reloaded: elogind (SIGHUP)"
 else
-    echo "warning: elogind-daemon not running; config will apply on next start"
+    echo "warning: elogind not running; config will apply on next start"
 fi
 
 # ── Done ──────────────────────────────────────────────────────────────────────
