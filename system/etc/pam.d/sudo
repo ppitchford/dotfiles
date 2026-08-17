@@ -1,0 +1,17 @@
+#%PAM-1.0
+# Void's stock sudo stack plus the fingerprint reader. This is a copy of a
+# package-owned file: xbps lists /etc/pam.d/sudo as a conf_file, so it survives
+# a sudo update in place, but a rebuild installs the stock version — hence the
+# mirror. If the sudo package ever changes the stock stack, this copy hides
+# that change, so diff it against /etc/pam.d/sudo.new-* after a sudo update.
+#
+# pam_fprintd is sufficient and runs first, so a failed or absent scan falls
+# through to the password. PAM authentication is serialised — you cannot type
+# a password while the reader is waiting — so the 30 second default timeout is
+# cut to 10 to keep the fallback within a reasonable wait.
+
+auth		sufficient	pam_fprintd.so timeout=10
+auth		include		system-auth
+
+account		include		system-auth
+session		include		system-auth

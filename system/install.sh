@@ -51,6 +51,14 @@ install -m 644 -o root -g root \
     /etc/pam.d/polkit-1
 echo "installed: /etc/pam.d/polkit-1"
 
+# Same reader for sudo. Unlike polkit-1 this overwrites a package-owned file —
+# see the header of system/etc/pam.d/sudo before changing it.
+
+install -m 644 -o root -g root \
+    "$ETC_SRC/pam.d/sudo" \
+    /etc/pam.d/sudo
+echo "installed: /etc/pam.d/sudo"
+
 # ── acpid event and handler ───────────────────────────────────────────────────
 
 install -d -m 755 /etc/acpi/events
@@ -115,6 +123,7 @@ echo "Verify with:"
 echo "  sudo sv status acpid"
 echo "  pkexec true                      # should ask for the reader first"
 echo "  stat -c '%U:%G' /run/dbus        # must be root:root after a reboot"
+echo "  sudo -k && sudo true             # should ask for the reader first"
 echo "  grep -E '^HandleLidSwitch' /etc/elogind/logind.conf"
 echo "  readlink /etc/localtime          # follows your location on connect"
 echo "  cat /var/log/tz-from-ip.log      # why it did or didn't change"
