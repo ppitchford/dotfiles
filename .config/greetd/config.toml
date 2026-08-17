@@ -1,6 +1,0 @@
-[terminal]
-vt = 1
-
-[default_session]
-command = "/etc/greetd/tuigreet-start"
-user = "_greeter"
