@@ -83,6 +83,12 @@
   compositor beside. End the old session deliberately when changing login.
 - `~/.local/bin/wayland-session` is the single home for session startup; the
   compositor config carries no autostart list.
+- mango ships no polkit authentication agent, and nothing else provides one
+  implicitly the way GNOME and KDE do. `hyprpolkitagent` fills that gap and
+  starts from `wayland-session`. Without an agent, GUI polkit actions fail in
+  milliseconds without ever prompting — which looks like a broken app, not a
+  missing session service. `pkexec` is not a valid test: it registers its own
+  text-mode agent and works regardless.
 - Unprivileged power actions go through `loginctl` — `poweroff`, `reboot`,
   `suspend`. The bare binaries and `zzz` are root-only with no setuid and fail
   silently for my user.
