@@ -59,6 +59,19 @@ install -m 644 -o root -g root \
     /etc/pam.d/sudo
 echo "installed: /etc/pam.d/sudo"
 
+# Enrolment, which is a separate permission from the verification the PAM
+# stacks above perform. Missing this, `fprintd-enroll` fails and nothing else
+# does — so the gap only surfaces when a finger has to be re-registered.
+
+# mkdir, not `install -d`: polkit ships rules.d with its own restrictive mode
+# and ownership, and install would reset both every run.
+mkdir -p /etc/polkit-1/rules.d
+
+install -m 644 -o root -g root \
+    "$ETC_SRC/polkit-1/rules.d/50-fprintd.rules" \
+    /etc/polkit-1/rules.d/50-fprintd.rules
+echo "installed: /etc/polkit-1/rules.d/50-fprintd.rules"
+
 # ── 1Password browser allowlist ───────────────────────────────────────────────
 # Helium is not a browser 1Password recognises, so without this the extension
 # cannot reach the desktop app, and the unlock never reaches polkit or the

@@ -1,0 +1,11 @@
+#!/bin/sh
+# Obsidian is Electron, and Electron still defaults to X11 unless told
+# otherwise, so the ozone flag lives here rather than in obsidian.desktop —
+# that way every launch path gets it, not just the one through fuzzel.
+#
+# The install is an extracted tarball at ~/.local/opt/obsidian, not the
+# AppImage it used to be: a real path means no transient FUSE mount, and this
+# shim can be a file on PATH instead of the directory that used to sit here.
+# Nothing here needs 1Password's browser verification, so unlike Helium it has
+# no reason to live in /opt. See ~/.local/bin/obsidian-update.
+exec "$HOME/.local/opt/obsidian/obsidian" --ozone-platform=wayland "$@"

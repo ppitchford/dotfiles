@@ -1,6 +1,6 @@
 [Desktop Entry]
 Name=Obsidian
-Exec=/home/philipp/.local/bin/obsidian/Obsidian.AppImage --ozone-platform=wayland %u
+Exec=obsidian %u
 Terminal=false
 Type=Application
 Icon=obsidian

@@ -1,0 +1,124 @@
+#!/bin/sh
+# Install or update the Obsidian desktop shell.
+#
+# Obsidian is installed outside XBPS, so `xbps-install -Su` never touches it.
+# With nothing at $PREFIX this installs the latest release, so a rebuilt
+# machine needs only the dotfiles clone and one run of this script. The tree is
+# far too large for the dotfiles or ~/system mirrors, so this is the only
+# record of how Obsidian gets onto the machine.
+#
+# What this does and does not update. Obsidian ships its application code as an
+# asar and updates that itself, into ~/.config/obsidian — which is why the app
+# can report a current version while sitting inside a year-old shell. This
+# script updates the shell: Electron, and the Chromium it embeds. That is the
+# half that carries browser CVEs and the half nothing else will ever refresh.
+#
+# Upstream publishes no signatures or checksums for these assets, so unlike
+# helium-update there is nothing to verify against — the trust boundary is TLS
+# to github.com and nothing more. The version is therefore recorded in a stamp
+# file at install time rather than read back from the binary, which would mean
+# launching a GUI app to ask it.
+#
+# Launching is `obsidian`; this script is deliberately separate so the shim
+# on PATH stays a one-line exec.
+
+set -eu
+
+REPO="obsidianmd/obsidian-releases"
+PREFIX="$HOME/.local/opt/obsidian"
+STAMP="$PREFIX/.shell-version"
+ICON="${XDG_DATA_HOME:-$HOME/.local/share}/icons/hicolor/512x512/apps/obsidian.png"
+
+die() {
+	echo "obsidian-update: $1" >&2
+	exit 1
+}
+
+for cmd in curl jq tar; do
+	command -v "$cmd" >/dev/null 2>&1 || die "$cmd is required but not installed"
+done
+
+if [ -x "$PREFIX/obsidian" ]; then
+	# Written by this script; absent if the tree was installed by hand.
+	current=$(cat "$STAMP" 2>/dev/null || echo "unknown")
+	echo "installed: $current"
+elif [ -e "$PREFIX" ]; then
+	die "$PREFIX exists but has no obsidian binary; move it aside first"
+else
+	current=""
+	echo "installed: none"
+fi
+
+# Obsidian tags releases `v1.13.7` but names its assets `1.13.7`.
+latest=$(curl -fsSL "https://api.github.com/repos/$REPO/releases/latest" \
+	| jq -r '.tag_name')
+[ -n "$latest" ] && [ "$latest" != "null" ] || die "could not fetch the latest release"
+version=${latest#v}
+
+echo "latest:    $version"
+
+if [ "$current" = "$version" ]; then
+	echo "Already up to date."
+	exit 0
+fi
+
+echo
+if [ -z "$current" ]; then
+	printf 'Install %s? [y/N] ' "$version"
+else
+	# A running Electron app opens .pak and locale files lazily, so pulling the
+	# tree out from under it breaks the live instance well after the fact.
+	if pgrep -f "$PREFIX/obsidian" >/dev/null 2>&1; then
+		die "Obsidian is running; quit it before updating"
+	fi
+	printf 'Update %s -> %s? [y/N] ' "$current" "$version"
+fi
+read -r reply
+case "$reply" in
+	[yY]) ;;
+	*) echo "Cancelled."; exit 0 ;;
+esac
+
+base="obsidian-$version.tar.gz"
+url="https://github.com/$REPO/releases/download/$latest/$base"
+
+work=$(mktemp -d "${TMPDIR:-/tmp}/obsidian-update.XXXXXX")
+# The staging tree lives beside the target so the final swap is a
+# same-filesystem rename. Both are removed on any failure or interrupt.
+stage="$PREFIX.new"
+trap 'rm -rf "$work" "$stage"' EXIT INT TERM
+rm -rf "$stage"
+
+echo "Downloading $version..."
+curl -fL --progress-bar -o "$work/$base" "$url" || die "download failed"
+
+mkdir -p "$stage"
+tar -xzf "$work/$base" -C "$stage" --strip-components=1 || die "extract failed"
+
+# No --version to check: asking an Electron app its version opens a window.
+# Confirm the pieces that must exist instead.
+[ -x "$stage/obsidian" ] || die "extracted tree has no obsidian binary"
+[ -f "$stage/resources/obsidian.asar" ] || die "extracted tree looks incomplete"
+
+echo "$version" > "$stage/.shell-version"
+
+rm -rf "$PREFIX.old"
+if [ -e "$PREFIX" ]; then
+	mv "$PREFIX" "$PREFIX.old"
+fi
+mv "$stage" "$PREFIX"
+rm -rf "$PREFIX.old"
+
+trap - EXIT INT TERM
+rm -rf "$work"
+
+# obsidian.desktop is tracked in dotfiles and asks for icon `obsidian`; the
+# artwork ships only in the tarball, so refresh it from the current build.
+install -Dm644 "$PREFIX/resources/icon.png" "$ICON" \
+	|| echo "obsidian-update: warning: could not install the launcher icon" >&2
+
+if [ -z "$current" ]; then
+	echo "Installed $version."
+else
+	echo "Updated to $version."
+fi

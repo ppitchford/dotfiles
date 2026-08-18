@@ -1,0 +1,18 @@
+// Let philipp enrol fingerprints without authenticating as root.
+//
+// fprintd's own default requires admin authentication for enrolment, which on
+// a single-user machine means typing the password to register the finger that
+// exists to avoid typing the password. Without this file `fprintd-enroll`
+// fails, and the failure is easy to misread as broken hardware.
+//
+// Verification, not enrolment, is what sudo and polkit actually use at the
+// prompt, and that path needs no rule — see /etc/pam.d/polkit-1 and
+// /etc/pam.d/sudo. So a rebuild missing this file looks fine right up until
+// the reader has to be re-enrolled.
+
+polkit.addRule(function(action, subject) {
+    if (action.id == "net.reactivated.fprint.device.enroll" &&
+        subject.user == "philipp") {
+        return polkit.Result.YES;
+    }
+});

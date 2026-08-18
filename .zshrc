@@ -52,7 +52,6 @@ zstyle ':fzf-tab:complete:__zoxide_z:*' fzf-preview 'ls --color $realpath'
 
 # Aliases
 alias ls='ls --color'
-alias obsidian="~/.local/bin/obsidian/Obsidian.AppImage --ozone-platform=wayland"
 
 # keychain
 if command -v keychain >/dev/null 2>&1; then
