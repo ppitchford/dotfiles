@@ -27,6 +27,10 @@
 !/.config/kitty
 !/.config/mako
 !/.config/mango
+
+# A file, not a directory: it carries the obsidian, claude-cli and browser
+# scheme handlers, and GTK "Open With" dialogs rewrite it in place.
+!/.config/mimeapps.list
 !/.config/mise
 !/.config/nvim
 !/.config/satty

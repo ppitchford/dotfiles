@@ -67,7 +67,6 @@ neovim
 nerd-fonts
 ninja
 nodejs
-okular
 pam-devel
 pango-devel
 papirus-icon-theme
