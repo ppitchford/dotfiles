@@ -1,8 +1,6 @@
 7zip
 MesaLib-devel
-NetworkManager
 Waybar
-amdvlk
 autoconf
 autoconf-archive
 automake

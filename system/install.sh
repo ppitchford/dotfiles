@@ -107,6 +107,18 @@ else
     echo "already enabled: acpid runit service"
 fi
 
+# ── iwd ───────────────────────────────────────────────────────────────────────
+# The iwd package ships no main.conf at all, so this file is entirely ours:
+# without it iwd falls back to its own defaults and DNS stops going through
+# resolvconf. Mirrored as-is; dhcpcd holds the wireless lease in practice, and
+# that is what makes dhcpcd.exit-hook below fire.
+
+install -d -m 755 -o root -g root /etc/iwd
+install -m 644 -o root -g root \
+    "$ETC_SRC/iwd/main.conf" \
+    /etc/iwd/main.conf
+echo "installed: /etc/iwd/main.conf"
+
 # ── Timezone auto-detection ───────────────────────────────────────────────────
 # Geolocates the public IP on each DHCP lease and repoints /etc/localtime.
 # dhcpcd already runs as root, so this needs no sudoers rule.
