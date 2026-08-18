@@ -10,15 +10,24 @@
 # success. A failed query therefore leaves the previous record intact
 # rather than truncating it to nothing, which is indistinguishable from
 # a legitimate removal.
+#
+# Where a query needs post-processing, the query runs on its own and its
+# status is checked before the transform. Testing `query | sed` reports
+# sed's status instead, and sed succeeds on empty input -- so a failed
+# query would look successful and write an empty manifest, which is the
+# exact truncation the temp file exists to prevent.
 cd "$(dirname "$0")" || exit 1
 
-if xbps-query -m | sed 's/-[^-]*$//' > .xbps-manual.tmp; then
+if xbps-query -m > .xbps-manual.raw; then
+	sed 's/-[^-]*$//' .xbps-manual.raw > .xbps-manual.tmp
 	mv .xbps-manual.tmp xbps-manual.txt
 else
 	echo "dump.sh: xbps-query failed, xbps-manual.txt left unchanged" >&2
 	rm -f .xbps-manual.tmp
 fi
+rm -f .xbps-manual.raw
 
+# No transform needed, and no pipeline: `if` tests flatpak itself here.
 if flatpak list --app --columns=application > .flatpak-apps.tmp 2>/dev/null; then
 	mv .flatpak-apps.tmp flatpak-apps.txt
 else
@@ -29,10 +38,6 @@ fi
 # npm globals hold the language servers Neovim resolves off PATH -- tsgo via
 # typescript, plus html, cssls and jsonls via vscode-langservers-extracted.
 # Without this manifest a rebuild leaves the editor with no servers at all.
-#
-# npm's status is checked before the transform rather than after: in a pipeline
-# the shell reports only the last command's status, so `npm ls | sed` would look
-# successful even when npm failed.
 if npm ls -g --depth=0 --parseable > .npm-global.raw 2>/dev/null; then
 	tail -n +2 .npm-global.raw | sed 's|.*/node_modules/||' > .npm-global.tmp
 	mv .npm-global.tmp npm-global.txt
