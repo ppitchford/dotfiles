@@ -26,4 +26,20 @@ else
 	rm -f .flatpak-apps.tmp
 fi
 
-wc -l xbps-manual.txt flatpak-apps.txt
+# npm globals hold the language servers Neovim resolves off PATH -- tsgo via
+# typescript, plus html, cssls and jsonls via vscode-langservers-extracted.
+# Without this manifest a rebuild leaves the editor with no servers at all.
+#
+# npm's status is checked before the transform rather than after: in a pipeline
+# the shell reports only the last command's status, so `npm ls | sed` would look
+# successful even when npm failed.
+if npm ls -g --depth=0 --parseable > .npm-global.raw 2>/dev/null; then
+	tail -n +2 .npm-global.raw | sed 's|.*/node_modules/||' > .npm-global.tmp
+	mv .npm-global.tmp npm-global.txt
+else
+	echo "dump.sh: npm ls failed, npm-global.txt left unchanged" >&2
+	rm -f .npm-global.tmp
+fi
+rm -f .npm-global.raw
+
+wc -l xbps-manual.txt flatpak-apps.txt npm-global.txt

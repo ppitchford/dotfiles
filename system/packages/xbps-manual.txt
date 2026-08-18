@@ -33,6 +33,7 @@ geoclue2
 git
 github-cli
 google-fonts-ttf
+gopls
 grim
 grub-x86_64-efi
 hugo
@@ -53,6 +54,7 @@ libwebp-devel
 libxkbcommon-devel
 linux-headers
 lshw
+lua-language-server
 make
 mako
 mangowc
@@ -76,6 +78,7 @@ polkit
 poppler
 pugixml
 pugixml-devel
+pyright
 qalculate
 qt6-base-devel
 qt6-tools-devel
