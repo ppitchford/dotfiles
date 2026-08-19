@@ -9,7 +9,6 @@ application/x-extension-shtml=userapp-Firefox-5CXSM3.desktop
 application/xhtml+xml=userapp-Firefox-5CXSM3.desktop
 application/x-extension-xhtml=userapp-Firefox-5CXSM3.desktop
 application/x-extension-xht=userapp-Firefox-5CXSM3.desktop
-x-scheme-handler/obsidian=obsidian.desktop
 x-scheme-handler/claude-cli=claude-code-url-handler.desktop
 x-scheme-handler/about=helium.desktop
 x-scheme-handler/unknown=helium.desktop
