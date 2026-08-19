@@ -65,6 +65,10 @@
 !/.local/bin
 /.local/bin/ornatus
 /.local/bin/frame
+# IWE: built from github.com/iwe-org/iwe, ~65MB of binaries.
+/.local/bin/iwe
+/.local/bin/iwes
+/.local/bin/iwec
 
 # opt is left to the blanket rule above: it holds the browser and editor trees
 # that helium-update and obsidian-update install, far too large to track and
