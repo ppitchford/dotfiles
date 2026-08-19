@@ -1,10 +1,10 @@
-/* Waybar - static stylesheet, Catppuccin Mocha glyphs
-   Background is opaque #373d49: the measured modal colour of the wallpaper
-   region beneath the bar on both outputs, sampled from
-   ~/Pictures/wallpapers/wallpaper-1-3840.jpg at 3440x1440 and 2880x1920.
-   This pins the bar to that image at those geometries — changing the
-   wallpaper, either resolution, or the bar height will make it visible as a
-   panel. Re-sample before changing any of the three. */
+/* Waybar - static stylesheet, Sanctum glyphs on pure black.
+   Palette: github.com/jdanielmourao/obsidian-sanctum (sanctum-black).
+   The bar is #000000 to match the desktop, which ornatus draws as a flat
+   black surface on every output. Nothing here is sampled from a wallpaper
+   any more, so the bar is independent of image, resolution and bar height.
+   Note this file is NOT part of ~/.config/theme/{dark,light}: it does not
+   follow the solar switch, so the bar stays black under the light theme. */
 
 * {
   font-family: "Inter SemiBold", "JetBrainsMono Nerd Font", sans-serif;
@@ -16,8 +16,8 @@
 }
 
 window#waybar {
-  background-color: #373d49;
-  color: #cdd6f4;
+  background-color: #000000;
+  color: #c7c5c2;
   border: none;
   border-bottom: none;
   box-shadow: none;
@@ -25,26 +25,29 @@ window#waybar {
 
 #tags button {
   padding: 0 8px;
-  color: #6c7086;
+  color: #545151;
   background-color: transparent;
 }
 
 #tags button.occupied {
-  color: #cdd6f4;
+  color: #c7c5c2;
 }
 
 #tags button.focused {
-  color: #11111b;
-  background-color: #cba6f7;
+  color: #000000;
+  background-color: #669961;
 }
 
+/* Sanctum's --text-on-accent is white; it measures 5.00:1 on this red where
+   black gives 4.16:1. The focused tag keeps black text because the inverse
+   holds on the green accent: 6.29:1 black vs 3.30:1 white. */
 #tags button.urgent {
-  color: #11111b;
-  background-color: #f38ba8;
+  color: #fdfefe;
+  background-color: #c54128;
 }
 
 #window {
-  color: #6c7086;
+  color: #545151;
 }
 
 #pulseaudio,
@@ -52,17 +55,17 @@ window#waybar {
 #battery,
 #clock {
   padding: 0 6px;
-  color: #cdd6f4;
+  color: #c7c5c2;
 }
 
 #battery.warning {
-  color: #fab387;
+  color: #f3bd4f;
 }
 
 #battery.critical {
-  color: #f38ba8;
+  color: #c54128;
 }
 
 #network.disconnected {
-  color: #f38ba8;
+  color: #c54128;
 }
