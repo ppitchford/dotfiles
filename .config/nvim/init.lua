@@ -13,4 +13,10 @@ vim.opt.rtp:prepend(lazypath)
 vim.g.mapleader = " "
 
 require("options")
+
+-- Required before lazy.setup: theme.lua registers a `User LazyDone` autocmd,
+-- and lazy fires that event from within setup(). Requiring it afterwards
+-- would register the autocmd too late for it to ever run.
+require("theme")
+
 require("lazy").setup("plugins")

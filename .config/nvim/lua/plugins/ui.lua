@@ -1,21 +1,15 @@
 -- ── UI ────────────────────────────────────────────────────────────────────────
 
 return {
-    -- Rosé Pine colorscheme — dark (Main) and light (Dawn) variants
-    -- Theme switching is handled by lua/theme.lua via file watcher
+    -- Tokyo Night colorscheme — dark (Night) and light (Day) styles.
+    -- Deliberately no opts here: lua/theme.lua owns the setup() call, because
+    -- the pure-black background must be applied to the dark style only and
+    -- that module is the one place that knows which variant is active.
     {
-        "rose-pine/neovim",
-        name     = "rose-pine",
+        "folke/tokyonight.nvim",
+        name     = "tokyonight",
         priority = 1000,  -- Load before other plugins
-        opts = {
-            variant      = "main",  -- Default; overridden by theme.lua on startup
-            dark_variant = "main",
-            styles = {
-                bold          = true,
-                italic        = true,
-                transparency  = false,
-            },
-        },
+        lazy     = false,
     },
 
     -- Statusline
@@ -24,7 +18,7 @@ return {
         event = "VeryLazy",
         opts = {
             options = {
-                theme            = "rose-pine",
+                theme            = "auto",
                 section_separators   = "",
                 component_separators = "",
                 globalstatus     = true,
