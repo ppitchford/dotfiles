@@ -1,0 +1,6 @@
+wallpaper             = "/home/philipp/.config/theme/black.jpg"
+theme_dir             = "/home/philipp/.config/theme"
+refresh_interval_secs = 60
+
+[location]
+source = "auto"

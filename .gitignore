@@ -33,6 +33,12 @@
 !/.config/mimeapps.list
 !/.config/mise
 !/.config/nvim
+
+# ornatus's own config: it names the wallpaper path, so the black desktop is
+# only reproducible on a rebuild if this is tracked. Config-only directory —
+# the location cache lives under XDG_CACHE_HOME and the pid file under
+# XDG_RUNTIME_DIR, so nothing stateful lands here.
+!/.config/ornatus
 !/.config/satty
 !/.config/theme
 !/.config/varia
@@ -42,6 +48,12 @@
 
 # Runtime state, not configuration — written by the theme switcher.
 /.config/theme/current
+
+# black.jpg — the desktop itself, a 64x64 solid black JPEG that ornatus scales
+# to cover. Needs no rule of its own; the directory above already tracks it.
+# It lives here rather than ~/Pictures because it is part of the theme, not a
+# photograph, and this keeps it in an already-tracked area. Regenerate with:
+#   ffmpeg -f lavfi -i color=c=black:s=64x64 -frames:v 1 -q:v 1 black.jpg
 
 # ── ~/.local ──────────────────────────────────────────────────────────────────
 # bin is visible wholesale so new scripts surface on their own; excluded by
