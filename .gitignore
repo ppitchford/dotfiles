@@ -49,6 +49,14 @@
 # Runtime state, not configuration — written by the theme switcher.
 /.config/theme/current
 
+# The symlinks ornatus repoints at sunrise and sunset. Same category as the
+# marker above: they record which theme is active, not how it is configured,
+# and tracking them dirtied the tree twice a day. ornatus recreates them on
+# its first apply, so a rebuild loses nothing.
+/.config/fuzzel/fuzzel.ini
+/.config/kitty/current-theme.conf
+/.config/mako/config
+
 # black.jpg — the desktop itself, a 64x64 solid black JPEG that ornatus scales
 # to cover. Needs no rule of its own; the directory above already tracks it.
 # It lives here rather than ~/Pictures because it is part of the theme, not a
