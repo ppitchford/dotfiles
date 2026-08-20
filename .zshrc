@@ -168,8 +168,22 @@ bt-airpods() {
   bluetoothctl connect 74:15:F5:25:09:92
 }
 
-# ── Zettelkasten ──────────────────────────────────────────────────────────────
+# ── Notes ─────────────────────────────────────────────────────────────────────
 
-export ZK_HOME="$HOME/Documents/zettelkasten"
+# New zettel: new-note <title>. The title becomes the filename, so quote it
+# if it contains an apostrophe. Frontmatter comes from --set because `iwe new`
+# writes none, and the template's {{id}} is a random slug, not a timestamp.
+new-note() {
+  if [[ -z "$*" ]]; then
+    echo "usage: new-note <title>"
+    return 1
+  fi
+  # Not `local path` — zsh ties `path` to PATH, and a local one blanks it.
+  local id file
+  id=$(date +%Y%m%d%H%M%S)
+  file=$(cd "$HOME/Documents/notes" && iwe create --template default \
+    --var title="$*" --set id="\"$id\"" --set date="$(date +%F)") || return
+  hx "$file"
+}
 
 export PATH="$HOME/.npm-global/bin:$PATH"
