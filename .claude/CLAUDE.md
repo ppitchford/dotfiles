@@ -6,6 +6,10 @@
   ceiling, never a target. The requirement is the commitment up front, not the
   word count: an opener that hedges, previews, or restates the question has
   failed the rule regardless of how short it is.
+- Never put a fenced code block inside a heredoc in a command you hand me. The
+  outer block terminates at the first inner fence, so the command silently
+  never runs and the failure looks like nothing happened. Write to a file
+  instead for anything containing backticks.
 - Give one step at a time and stop. I run the command and paste the output; the
   next step follows from what actually happened, not from what was predicted.
   A numbered list of eight steps in a single message is not this — it front-loads
@@ -64,6 +68,10 @@
 - mango reloads at runtime: `mmsg dispatch reload_config` returns
   `{"success":true}`, which distinguishes a failed reload from a setting that
   did nothing — the keybind does not. No rebuild, no relogin.
+- `mango -p -c FILE` validates config *syntax* only. It does not prove an
+  action name resolves — running it is the only thing that does.
+- `mmsg` requires `MANGO_INSTANCE_SIGNATURE`, which the compositor sets, so it
+  works only from inside a live mango session. It is not a remote control.
 - `/etc/mango/config.conf` is a shipped *sample*, not the compiled defaults.
   Never delete a key on the grounds that it matches that file. Confirm the
   behaviour is identical with the key absent, then delete.
@@ -152,6 +160,13 @@
 - Routing: if a fact would be wrong after cloning a single repo, it belongs
   here. If it's true only inside one project, it belongs in that repo's
   CLAUDE.md. Don't restate one in the other — one copy, one place.
+- The zettelkasten is the third location, and the split is by *kind*, not
+  topic. An operational invariant a session needs before it acts — which
+  binary, which command, what a result proves, what fails silently — belongs
+  here, because this file loads automatically and the note does not. The
+  record of a decision and the reasoning behind it belongs in the vault. Test:
+  would a session do the wrong thing without this, having been told to read
+  nothing? If yes, it goes here.
 - Auto memory (`~/.claude/projects/<project>/memory/`) is yours to write, not
   mine. Don't put anything there that belongs in a CLAUDE.md — if it's a rule
   I'd want permanently, say so and I'll put it in the right file.
