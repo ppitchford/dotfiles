@@ -1,0 +1,110 @@
+#!/usr/bin/env python3
+"""Render the notes vault as a link graph.
+
+Nodes are documents, edges are wiki links. Notes with no link in either
+direction are drawn dashed and grey — that is the review signal, not a
+verdict: a new note may link to nothing yet.
+
+Usage: vault-graph [OUTPUT_PREFIX] [--vault DIR] [--all]
+
+OUTPUT_PREFIX defaults to $XDG_CACHE_HOME/vault-graph/vault, producing
+<prefix>.dot, <prefix>.svg and <prefix>.png.
+"""
+import argparse, glob, os, re, shutil, subprocess, sys, textwrap
+
+SYSTEM = {"CLAUDE.md", "Conventions.md", "Log.md"}
+WIKI = re.compile(r"\[\[([^\]|#]+)")
+
+
+def cache_home():
+    return os.environ.get("XDG_CACHE_HOME") or os.path.expanduser("~/.cache")
+
+
+def read_graph(vault, include_system):
+    files = sorted(os.path.basename(p) for p in glob.glob(os.path.join(vault, "*.md")))
+    if not files:
+        sys.exit(f"vault-graph: no markdown documents in {vault}")
+    names = {os.path.splitext(f)[0] for f in files}
+    kept = files if include_system else [f for f in files if f not in SYSTEM]
+    keys = [os.path.splitext(f)[0] for f in kept]
+    system_keys = {os.path.splitext(f)[0] for f in SYSTEM}
+
+    edges, elsewhere = set(), {}
+    for f in files:
+        src = os.path.splitext(f)[0]
+        targets = set(WIKI.findall(open(os.path.join(vault, f), encoding="utf-8").read()))
+        for tgt in targets:
+            tgt = tgt.strip()
+            if tgt not in names or tgt == src:
+                continue
+            if src in keys and tgt in keys:
+                edges.add((src, tgt))
+            elif src in system_keys:
+                elsewhere.setdefault(tgt, set()).add(src)
+    return keys, edges, elsewhere
+
+
+def write_dot(path, keys, edges):
+    degree = dict.fromkeys(keys, 0)
+    for a, b in edges:
+        degree[a] += 1
+        degree[b] += 1
+    q = lambda s: s.replace('"', '\\"')
+    label = lambda k: "\\n".join(textwrap.wrap(k, 22)).replace('"', '\\"')
+
+    out = [
+        "digraph vault {",
+        '  layout=sfdp overlap=prism sep="+14" splines=curved bgcolor="#faf9f7"',
+        '  node [shape=box style="rounded,filled" fontname="Helvetica" fontsize=11',
+        '        fillcolor="#ffffff" color="#c9c4bd" penwidth=1.2 margin="0.14,0.09"]',
+        '  edge [color="#9a938a" penwidth=1.0 arrowsize=0.6]',
+    ]
+    for k in keys:
+        if degree[k]:
+            out.append(f'  "{q(k)}" [label="{label(k)}" fontsize={11 + min(degree[k], 8)}]')
+        else:
+            out.append(
+                f'  "{q(k)}" [label="{label(k)}" fillcolor="#f2efe9" color="#ccc5ba"'
+                ' style="rounded,filled,dashed" fontcolor="#8a8378"]'
+            )
+    out += [f'  "{q(a)}" -> "{q(b)}"' for a, b in sorted(edges)]
+    out.append("}")
+    with open(path, "w", encoding="utf-8") as fh:
+        fh.write("\n".join(out) + "\n")
+    return degree
+
+
+def main():
+    ap = argparse.ArgumentParser(add_help=True, description="Render the notes vault as a link graph.")
+    ap.add_argument("prefix", nargs="?", help="output path prefix (default: $XDG_CACHE_HOME/vault-graph/vault)")
+    ap.add_argument("--vault", default=os.path.expanduser("~/Documents/notes"))
+    ap.add_argument("--all", action="store_true", help="include Log, Conventions and CLAUDE.md as nodes")
+    args = ap.parse_args()
+
+    if not shutil.which("dot"):
+        sys.exit("vault-graph: graphviz is not installed (xbps-install graphviz)")
+    vault = os.path.expanduser(args.vault)
+    if not os.path.isdir(vault):
+        sys.exit(f"vault-graph: {vault} is not a directory")
+
+    prefix = args.prefix or os.path.join(cache_home(), "vault-graph", "vault")
+    os.makedirs(os.path.dirname(os.path.abspath(prefix)), exist_ok=True)
+
+    keys, edges, elsewhere = read_graph(vault, args.all)
+    degree = write_dot(prefix + ".dot", keys, edges)
+    for fmt in ("svg", "png"):
+        cmd = ["dot", "-Ksfdp", f"-T{fmt}", prefix + ".dot", "-o", f"{prefix}.{fmt}"]
+        if fmt == "png":
+            cmd.insert(1, "-Gdpi=110")
+        subprocess.run(cmd, check=True)
+
+    unlinked = sorted(k for k in keys if not degree[k])
+    print(f"{len(keys)} documents, {len(edges)} links, {len(unlinked)} unlinked")
+    for k in unlinked:
+        via = elsewhere.get(k)
+        print(f"  {k}" + (f"  [reached only from {', '.join(sorted(via))}]" if via else ""))
+    print(f"\nwrote {prefix}.dot, {prefix}.svg, {prefix}.png")
+
+
+if __name__ == "__main__":
+    main()
