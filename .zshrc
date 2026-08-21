@@ -170,6 +170,31 @@ bt-airpods() {
 
 # ── Notes ─────────────────────────────────────────────────────────────────────
 
+# Capture: inb <text> appends a bullet to ~/inbox.md, the staging surface that
+# gets flushed into Things3 by hand each night. Deliberately dumber than the log
+# in ~/log — this file is emptied, that one is kept.
+inb() {
+  if [[ -z "$*" ]]; then
+    echo "usage: inb <text>"
+    return 1
+  fi
+  print -r -- "- $*" >> "$HOME/inbox.md"
+}
+
+# notes: what the vault holds, by type, plus anything waiting in the inbox.
+# Untyped is the default and means a finished zettel; seedlings are work owed.
+notes() {
+  local vault="$HOME/notes" total seedlings essays waiting
+  total=$(find "$vault" -maxdepth 1 -name '*.md' ! -name 'CLAUDE.md' ! -name 'Conventions.md' | wc -l)
+  seedlings=$(grep -l '^type: seedling' "$vault"/*.md 2>/dev/null | wc -l)
+  essays=$(grep -l '^type: essay' "$vault"/*.md 2>/dev/null | wc -l)
+  print -r -- "$total notes — $((total - seedlings - essays)) evergreen, $seedlings seedling, $essays essay"
+  if [[ -s "$HOME/inbox.md" ]]; then
+    waiting=$(grep -c '^- ' "$HOME/inbox.md")
+    print -r -- "$waiting waiting in the inbox"
+  fi
+}
+
 # New zettel: new-note <title>. The title becomes the filename, so quote it
 # if it contains an apostrophe. Frontmatter comes from --set because `iwe new`
 # writes none, and the template's {{id}} is a random slug, not a timestamp.
@@ -181,7 +206,7 @@ new-note() {
   # Not `local path` — zsh ties `path` to PATH, and a local one blanks it.
   local id file
   id=$(date +%Y%m%d%H%M%S)
-  file=$(cd "$HOME/Documents/notes" && iwe create --template default \
+  file=$(cd "$HOME/notes" && iwe create --template default \
     --var title="$*" --set id="\"$id\"" --set date="$(date +%F)") || return
   hx "$file"
 }
