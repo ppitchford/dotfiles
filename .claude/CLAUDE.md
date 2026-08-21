@@ -132,6 +132,13 @@
   `~/.config/theme/{dark,light}/`. Edit the bundles, never the symlink targets
   in place. Live mid-session solar transitions work — `signal_reloads` fires
   `makoctl reload` and mako re-reads through the symlink.
+- Naming: lowercase kebab for directories and for any file a command addresses by
+  path — `vault-graph`, `miniature-painting`, `~/log/log.md`. Documents only a person
+  opens keep their title as the filename, capitals and spaces included — `SDFWA
+  onboarding notes.md`. When a file is both, the machine-facing form wins: a person
+  reads `log.md` fine, a shell pays for the capital every time. The zettelkasten is the
+  deliberate exception — a note's filename *is* its title, because the filename is also
+  the link text and links have to read as prose. Adopted 2026-08-21.
 - New tools resolve XDG paths (`XDG_CONFIG_HOME`, `XDG_CACHE_HOME`,
   `XDG_RUNTIME_DIR`) with `~/.config`-style fallbacks rather than hardcoding.
 - Dotfiles are a bare git repo with `$HOME` as the work tree. `~/.gitignore`
