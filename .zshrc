@@ -170,14 +170,14 @@ bt-airpods() {
 
 # ── Notes ─────────────────────────────────────────────────────────────────────
 
-# Capture: inb <text> mails the line to the Things inbox. Credentials come from
+# Capture: inbox <text> mails the line to the Things inbox. Credentials come from
 # ~/.config/things/env, sourced inside a subshell so the app password never sits
 # in this shell's environment. A capture only lands in ~/inbox.md when the send
 # fails, so what is in that file is what did not make it — which is why `notes`
 # reports the count as a problem rather than a chore.
-inb() {
+inbox() {
   if [[ -z "$*" ]]; then
-    echo "usage: inb <text>"
+    echo "usage: inbox <text>"
     return 1
   fi
   local text="$*" cfg="$HOME/.config/things/env"
@@ -197,10 +197,10 @@ inb() {
            --mail-from "$GMAIL_USER" --mail-rcpt "$THINGS_ADDR" \
            --upload-file - --max-time 20
      ); then
-    print -r -- "$(date -Is)  $text" >> "${XDG_CACHE_HOME:-$HOME/.cache}/inb-sent.log"
+    print -r -- "$(date -Is)  $text" >> "${XDG_CACHE_HOME:-$HOME/.cache}/inbox-sent.log"
   else
     print -r -- "- $text" >> "$HOME/inbox.md"
-    print -u2 -- "inb: send failed, kept in ~/inbox.md"
+    print -u2 -- "inbox: send failed, kept in ~/inbox.md"
     return 1
   fi
 }

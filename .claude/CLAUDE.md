@@ -142,7 +142,7 @@
   `~/Pictures` compiled in as a fallback and were patched and rebuilt for it.
 - The notes system is three repos: `~/notes` (the zettelkasten, GitHub `notes`,
   renamed from `zettelkasten` on 2026-08-21), `~/log` (the dated record, private),
-  and `~/projects/desktop`. Capture is `~/inbox.md` via `inb`, flushed to Things3 by
+  and `~/projects/desktop`. Capture is `~/inbox.md` via `inbox`, flushed to Things3 by
   hand; `notes` reports the vault by type.
 - Naming: lowercase kebab for directories and for any file a command addresses by
   path — `vault-graph`, `miniature-painting`, `~/log/log.md`. Documents only a person
