@@ -193,6 +193,10 @@ notes() {
     waiting=$(grep -c '^- ' "$HOME/inbox.md")
     print -r -- "$waiting waiting in the inbox"
   fi
+  # Silent once today has a heading in the log — a signal, not furniture.
+  if [[ -f "$HOME/log/log.md" ]] && ! grep -q "^## $(date +%F)" "$HOME/log/log.md"; then
+    print -r -- "nothing written in the log today"
+  fi
 }
 
 # New zettel: new-note <title>. The title becomes the filename, so quote it
