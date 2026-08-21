@@ -170,15 +170,39 @@ bt-airpods() {
 
 # ── Notes ─────────────────────────────────────────────────────────────────────
 
-# Capture: inb <text> appends a bullet to ~/inbox.md, the staging surface that
-# gets flushed into Things3 by hand each night. Deliberately dumber than the log
-# in ~/log — this file is emptied, that one is kept.
+# Capture: inb <text> mails the line to the Things inbox. Credentials come from
+# ~/.config/things/env, sourced inside a subshell so the app password never sits
+# in this shell's environment. A capture only lands in ~/inbox.md when the send
+# fails, so what is in that file is what did not make it — which is why `notes`
+# reports the count as a problem rather than a chore.
 inb() {
   if [[ -z "$*" ]]; then
     echo "usage: inb <text>"
     return 1
   fi
-  print -r -- "- $*" >> "$HOME/inbox.md"
+  local text="$*" cfg="$HOME/.config/things/env"
+  if [[ -r "$cfg" ]] && (
+       set -a; source "$cfg"; set +a
+       # Google displays the app password in four groups; pasted with the spaces
+       # it both mis-parses on source and fails auth. Strip them either way.
+       GMAIL_APP_PASSWORD="${GMAIL_APP_PASSWORD// /}"
+       [[ -n "$THINGS_ADDR" && -n "$GMAIL_USER" && -n "$GMAIL_APP_PASSWORD" ]] || exit 1
+       # RFC 2047 for the subject: captures carry em dashes and quotes, and a
+       # raw UTF-8 header is not guaranteed to survive.
+       subject="=?UTF-8?B?$(printf '%s' "$text" | base64 -w0)?="
+       printf 'From: %s\r\nTo: %s\r\nSubject: %s\r\nDate: %s\r\n\r\n' \
+         "$GMAIL_USER" "$THINGS_ADDR" "$subject" "$(date -R)" |
+         curl -sS --ssl-reqd --url smtps://smtp.gmail.com:465 \
+           --user "$GMAIL_USER:$GMAIL_APP_PASSWORD" \
+           --mail-from "$GMAIL_USER" --mail-rcpt "$THINGS_ADDR" \
+           --upload-file - --max-time 20
+     ); then
+    print -r -- "$(date -Is)  $text" >> "${XDG_CACHE_HOME:-$HOME/.cache}/inb-sent.log"
+  else
+    print -r -- "- $text" >> "$HOME/inbox.md"
+    print -u2 -- "inb: send failed, kept in ~/inbox.md"
+    return 1
+  fi
 }
 
 # notes: what the vault holds, by type, plus anything waiting in the inbox.
@@ -191,7 +215,7 @@ notes() {
   print -r -- "$total notes — $((total - seedlings - essays)) evergreen, $seedlings seedling, $essays essay"
   if [[ -s "$HOME/inbox.md" ]]; then
     waiting=$(grep -c '^- ' "$HOME/inbox.md")
-    print -r -- "$waiting waiting in the inbox"
+    print -r -- "$waiting capture(s) never reached Things — see ~/inbox.md"
   fi
   # Silent once today has a heading in the log — a signal, not furniture.
   if [[ -f "$HOME/log/log.md" ]] && ! grep -q "^## $(date +%F)" "$HOME/log/log.md"; then

@@ -35,6 +35,3 @@ waybar_supervise 2>&1 |
 
 ~/.local/bin/ornatus > /tmp/ornatus.log 2>&1 &
 
-# The capture surface, open from the start of the session so writing something
-# down costs nothing. `inb` appends to the same file from any shell.
-kitty --class inbox hx "$HOME/inbox.md" &
