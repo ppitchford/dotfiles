@@ -32,6 +32,7 @@
 # handlers, and GTK "Open With" dialogs rewrite it in place. The obsidian
 # handler went with the application on 2026-08-19.
 !/.config/mimeapps.list
+!/.config/user-dirs.dirs
 !/.config/mise
 !/.config/nvim
 

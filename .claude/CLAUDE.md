@@ -52,7 +52,7 @@
 
 ## Environment
 - This file describes the machine as it is today. Plans and intended migrations
-  live in the zettelkasten, not here.
+  live in the vault at `~/notes`, not here.
 - Ask before installing anything — xbps packages, cargo binaries, npm globals,
   Neovim plugins. This machine is curated deliberately and I want to know what
   lands on it.
@@ -110,8 +110,8 @@
   from `~/system/packages/dump.sh`. Anything hand-written into `/etc` belongs in
   that mirror or it is lost on rebuild.
 - Desktop configuration detail — theme bundles, waybar, hyprlock, and the open
-  threads — lives in the zettelkasten note `projects/Desktop made for one.md`,
-  not here.
+  threads — lives in `~/projects/desktop/Desktop made for one.md`, its own repo
+  since 2026-08-21, not here.
 - Neovim (lazy.nvim), Kitty, zsh (zinit + starship + zoxide + fzf).
 - Project sources in `~/projects/<name>/`.
 - Binaries I build install to `~/.local/bin/` with `install -Dm755`. One
@@ -132,6 +132,15 @@
   `~/.config/theme/{dark,light}/`. Edit the bundles, never the symlink targets
   in place. Live mid-session solar transitions work — `signal_reloads` fires
   `makoctl reload` and mako re-reads through the symlink.
+- `$HOME` is all lowercase as of 2026-08-21, XDG directories included:
+  `~/documents`, `~/downloads`, `~/pictures`, `~/applications`. `~/.config/user-dirs.dirs`
+  is what makes that stick — without it glib falls back to the capitalized defaults and
+  applications recreate `~/Downloads` beside `~/downloads`. frame and ornatus both had
+  `~/Pictures` compiled in as a fallback and were patched and rebuilt for it.
+- The notes system is three repos: `~/notes` (the zettelkasten, GitHub `notes`,
+  renamed from `zettelkasten` on 2026-08-21), `~/log` (the dated record, private),
+  and `~/projects/desktop`. Capture is `~/inbox.md` via `inb`, flushed to Things3 by
+  hand; `notes` reports the vault by type.
 - Naming: lowercase kebab for directories and for any file a command addresses by
   path — `vault-graph`, `miniature-painting`, `~/log/log.md`. Documents only a person
   opens keep their title as the filename, capitals and spaces included — `SDFWA
@@ -149,9 +158,9 @@
 - Check `git status` before starting work. If the tree is dirty with changes I
   didn't just describe, say so and wait — don't fold my in-progress edits into
   your commit.
-- Pull before editing. It's a no-op in repos only this machine writes to, and
-  it's the difference between a clean start and a merge mess in ones where
-  something else does — the zettelkasten syncs from iOS via `obsidian-git`.
+- Pull before editing. This machine is the only writer everywhere now — the iOS
+  phone and `obsidian-git` went with Obsidian on 2026-08-19 — so it is a no-op,
+  but a dirty tree means work in progress that is not yours to commit.
 - Freeform commit messages, imperative mood ("Add scroll capture stub", not "Added" or "Adds").
 - Subject under ~72 characters. Body only when the "why" isn't obvious.
 - No prefix conventions.
@@ -167,7 +176,7 @@
 - Routing: if a fact would be wrong after cloning a single repo, it belongs
   here. If it's true only inside one project, it belongs in that repo's
   CLAUDE.md. Don't restate one in the other — one copy, one place.
-- The zettelkasten is the third location, and the split is by *kind*, not
+- The vault at `~/notes` is the third location, and the split is by *kind*, not
   topic. An operational invariant a session needs before it acts — which
   binary, which command, what a result proves, what fails silently — belongs
   here, because this file loads automatically and the note does not. The
