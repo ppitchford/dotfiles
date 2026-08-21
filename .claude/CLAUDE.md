@@ -115,9 +115,12 @@
 - Neovim (lazy.nvim), Kitty, zsh (zinit + starship + zoxide + fzf).
 - Project sources in `~/projects/<name>/`.
 - Binaries I build install to `~/.local/bin/` with `install -Dm755`. One
-  exception: `~/.local/bin/frame` is a symlink into that repo's `target/`,
-  which is why `cargo clean` there breaks live keybindings — see frame's
-  own CLAUDE.md.
+  exception: `~/.local/bin/frame` is a symlink into that repo's `target/`, so
+  `cargo clean` there leaves a dangling binary — see frame's own CLAUDE.md.
+  It has no keybinding: the dwl-to-mango migration on 2026-08-12 rewrote the
+  config minimally and frame's binds were not carried over, verified
+  2026-08-21. `varia` needs none by design — its six modes are `.desktop`
+  entries reached from the fuzzel prompt.
 - `mise` manages Go, Node, and Python from `~/.config/mise/config.toml`. Don't
   reach for `gvm`, `nvm`, `pyenv`, or `asdf`. Rust is not under mise and rustup
   is not installed — `rust`, `cargo`, `rust-src`, and `rust-analyzer` come from
