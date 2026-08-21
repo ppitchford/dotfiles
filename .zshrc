@@ -211,4 +211,11 @@ new-note() {
   hx "$file"
 }
 
+# The count greets every new terminal — seedlings are work owed, and captures
+# sitting in the inbox are work not yet triaged. Interactive shells only, and
+# silent if the vault is not on this machine. Costs about 30ms.
+if [[ -o interactive && -d "$HOME/notes" ]]; then
+  notes
+fi
+
 export PATH="$HOME/.npm-global/bin:$PATH"
