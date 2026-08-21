@@ -142,8 +142,10 @@
   `~/Pictures` compiled in as a fallback and were patched and rebuilt for it.
 - The notes system is three repos: `~/notes` (the zettelkasten, GitHub `notes`,
   renamed from `zettelkasten` on 2026-08-21), `~/log` (the dated record, private),
-  and `~/projects/desktop`. Capture is `~/inbox.md` via `inbox`, flushed to Things3 by
-  hand; `notes` reports the vault by type.
+  and `~/projects/desktop`. Capture is `inbox <title>`, which mails the task
+  straight to Things3 — notes may be piped in. `~/inbox.md` holds only sends that
+  failed; `inbox-flush` retries them and `inbox-clear` discards them. `notes`
+  reports the vault by type and flags anything stuck.
 - Naming: lowercase kebab for directories and for any file a command addresses by
   path — `vault-graph`, `miniature-painting`, `~/log/log.md`. Documents only a person
   opens keep their title as the filename, capitals and spaces included — `SDFWA

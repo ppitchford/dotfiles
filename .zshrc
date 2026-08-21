@@ -170,17 +170,23 @@ bt-airpods() {
 
 # ── Notes ─────────────────────────────────────────────────────────────────────
 
-# Capture: inbox <text> mails the line to the Things inbox. Credentials come from
-# ~/.config/things/env, sourced inside a subshell so the app password never sits
-# in this shell's environment. A capture only lands in ~/inbox.md when the send
-# fails, so what is in that file is what did not make it — which is why `notes`
-# reports the count as a problem rather than a chore.
+# Capture: inbox <text> mails the line to the Things inbox as a task title.
+# Anything piped in becomes the task's notes:
+#
+#   inbox "Call the roofer"
+#   print -r -- "$long" | inbox "Call the roofer"
+#
+# Credentials come from ~/.config/things/env, sourced inside a subshell so the
+# app password never sits in this shell's environment. A capture lands in
+# ~/inbox.md only when the send fails, so what is in that file is what did not
+# make it — which is why `notes` reports the count as a problem.
 inbox() {
   if [[ -z "$*" ]]; then
-    echo "usage: inbox <text>"
+    echo "usage: inbox <title>   (notes may be piped in)"
     return 1
   fi
-  local text="$*" cfg="$HOME/.config/things/env"
+  local text="$*" body="" cfg="$HOME/.config/things/env"
+  [[ ! -t 0 ]] && body=$(cat)
   if [[ -r "$cfg" ]] && (
        set -a; source "$cfg"; set +a
        # Google displays the app password in four groups; pasted with the spaces
@@ -190,8 +196,12 @@ inbox() {
        # RFC 2047 for the subject: captures carry em dashes and quotes, and a
        # raw UTF-8 header is not guaranteed to survive.
        subject="=?UTF-8?B?$(printf '%s' "$text" | base64 -w0)?="
-       printf 'From: %s\r\nTo: %s\r\nSubject: %s\r\nDate: %s\r\n\r\n' \
-         "$GMAIL_USER" "$THINGS_ADDR" "$subject" "$(date -R)" |
+       {
+         printf 'From: %s\r\nTo: %s\r\nSubject: %s\r\nDate: %s\r\n' \
+           "$GMAIL_USER" "$THINGS_ADDR" "$subject" "$(date -R)"
+         printf 'MIME-Version: 1.0\r\nContent-Type: text/plain; charset=UTF-8\r\n\r\n'
+         [[ -n "$body" ]] && printf '%s\r\n' "$body"
+       } |
          curl -sS --ssl-reqd --url smtps://smtp.gmail.com:465 \
            --user "$GMAIL_USER:$GMAIL_APP_PASSWORD" \
            --mail-from "$GMAIL_USER" --mail-rcpt "$THINGS_ADDR" \
@@ -203,6 +213,44 @@ inbox() {
     print -u2 -- "inbox: send failed, kept in ~/inbox.md"
     return 1
   fi
+}
+
+# inbox-flush sends everything waiting in ~/inbox.md. Failures come back to a
+# fresh file, so running it twice is safe. A line longer than 80 characters is
+# split — first sentence as the task title, the whole line as its notes — since
+# a paragraph makes an unreadable title.
+inbox-flush() {
+  if [[ ! -s "$HOME/inbox.md" ]]; then
+    print -r -- "inbox: nothing waiting"
+    return 0
+  fi
+  local retry="$HOME/inbox.retry" line title
+  mv "$HOME/inbox.md" "$retry"
+  while IFS= read -r line; do
+    [[ -n "$line" ]] || continue
+    line="${line#- }"
+    if (( ${#line} > 80 )); then
+      title="${line%%. *}"
+      (( ${#title} > 80 )) && title="${line[1,77]}..."
+      print -r -- "$line" | inbox "$title"
+    else
+      inbox "$line"
+    fi
+  done < "$retry"
+  rm -f "$retry"
+}
+
+# inbox-clear discards what is waiting, printing it first. The file holds sends
+# that failed, so clearing it throws captures away — inbox-flush is the usual
+# answer, and this is for lines that are not worth retrying.
+inbox-clear() {
+  if [[ ! -s "$HOME/inbox.md" ]]; then
+    print -r -- "inbox: already empty"
+    return 0
+  fi
+  print -r -- "discarding:"
+  cat "$HOME/inbox.md"
+  : > "$HOME/inbox.md"
 }
 
 # notes: what the vault holds, by type, plus anything waiting in the inbox.
