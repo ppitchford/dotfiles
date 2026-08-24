@@ -110,7 +110,7 @@
   from `~/system/packages/dump.sh`. Anything hand-written into `/etc` belongs in
   that mirror or it is lost on rebuild.
 - Desktop configuration detail — theme bundles, waybar, hyprlock, and the open
-  threads — lives in `~/projects/desktop/Desktop made for one.md`, its own repo
+  threads — lives in `~/projects/desktop/desktop-made-for-one.md`, its own repo
   since 2026-08-21, not here.
 - Neovim (lazy.nvim), Kitty, zsh (zinit + starship + zoxide + fzf).
 - Project sources in `~/projects/<name>/`.
@@ -146,13 +146,14 @@
   straight to Things3 — notes may be piped in. `~/inbox.md` holds only sends that
   failed; `inbox-flush` retries them and `inbox-clear` discards them. `notes`
   reports the vault by type and flags anything stuck.
-- Naming: lowercase kebab for directories and for any file a command addresses by
-  path — `vault-graph`, `miniature-painting`, `~/log/log.md`. Documents only a person
-  opens keep their title as the filename, capitals and spaces included — `SDFWA
-  onboarding notes.md`. When a file is both, the machine-facing form wins: a person
-  reads `log.md` fine, a shell pays for the capital every time. The zettelkasten is the
-  deliberate exception — a note's filename *is* its title, because the filename is also
-  the link text and links have to read as prose. Adopted 2026-08-21.
+- Naming: lowercase kebab for every file and directory — `vault-graph`,
+  `miniature-painting`, `~/log/log.md`, `weekly-review.md`, `project-ladder.md`.
+  Documents a person opens are not exempt. The vault at `~/notes` is the single
+  deliberate exception — a note's filename *is* its title, because the filename is
+  also the link text and links have to read as prose. Adopted 2026-08-21 as a
+  two-tier rule keyed on whether a command addressed the file; simplified to kebab
+  throughout on 2026-08-24, because that test depended on a reference that might not
+  exist yet, so adding one silently re-tiered the file it pointed at.
 - New tools resolve XDG paths (`XDG_CONFIG_HOME`, `XDG_CACHE_HOME`,
   `XDG_RUNTIME_DIR`) with `~/.config`-style fallbacks rather than hardcoding.
 - Dotfiles are a bare git repo with `$HOME` as the work tree. `~/.gitignore`
