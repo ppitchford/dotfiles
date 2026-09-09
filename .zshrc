@@ -271,19 +271,22 @@ notes() {
   fi
 }
 
-# New zettel: new-note <title>. The title becomes the filename, so quote it
-# if it contains an apostrophe. Frontmatter comes from --set because `iwe new`
-# writes none, and the template's {{id}} is a random slug, not a timestamp.
+# New seedling: new-note <working title>. Every note starts as a seedling named
+# by its timestamp; the argument becomes the H1 only, never the filename, because
+# renaming a note to its claim is the event that promotes it out of seedling.
+# Quote a working title containing an apostrophe.
 new-note() {
   if [[ -z "$*" ]]; then
-    echo "usage: new-note <title>"
+    echo "usage: new-note <working title>"
     return 1
   fi
   # Not `local path` — zsh ties `path` to PATH, and a local one blanks it.
   local id file
   id=$(date +%Y%m%d%H%M%S)
-  file=$(cd "$HOME/notes" && iwe create --template default \
-    --var title="$*" --set id="\"$id\"" --set date="$(date +%F)") || return
+  # --id sets the filename and the frontmatter id from one value, so the two
+  # cannot drift. --print-path makes zk print instead of opening its own editor.
+  file=$(cd "$HOME/notes" && zk new --no-input --print-path \
+    --id "$id" --title "$*") || return
   hx "$file"
 }
 
