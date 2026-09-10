@@ -79,6 +79,11 @@
 /.local/bin/iwe
 /.local/bin/iwes
 /.local/bin/iwec
+# zk-graph-view: a uv tool shim, not an authored script. The venv it points at
+# lives under ~/.local/share/uv and is ~118MB. Reinstall with
+#   uv tool install 'zk-graph-view==0.1.0'
+# Pinned: 0.2.0 and upstream main crash on startup (SyntaxError in cli.py).
+/.local/bin/zk-graph-view
 
 # opt is left to the blanket rule above: it holds the browser tree that
 # helium-update installs, far too large to track and reproducible from that
