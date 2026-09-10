@@ -12,7 +12,7 @@ OUTPUT_PREFIX defaults to $XDG_CACHE_HOME/vault-graph/vault, producing
 """
 import argparse, glob, os, re, shutil, subprocess, sys, textwrap
 
-SYSTEM = {"CLAUDE.md", "Conventions.md"}
+SYSTEM = {"CLAUDE.md", "README.md"}
 WIKI = re.compile(r"\[\[([^\]|#]+)")
 
 
