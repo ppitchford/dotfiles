@@ -303,6 +303,16 @@ new-source() {
     echo "usage: new-source <work title>"
     return 1
   fi
+  # `zk new` returns the existing note's path and creates nothing when the
+  # filename is taken, exiting 0 — so a second work sharing a title would
+  # silently open the first and you would type its extracts into the wrong
+  # note. Check first. Two Meditations need two titles.
+  if [[ -e "$HOME/notes/$*.md" ]]; then
+    print -u2 -- "new-source: a note is already named that"
+    print -u2 -- "  $HOME/notes/$*.md"
+    print -u2 -- "disambiguate the title — the author or the year works"
+    return 1
+  fi
   # Not `local path` — zsh ties `path` to PATH, and a local one blanks it.
   local id file
   id=$(date +%Y%m%d%H%M%S)
