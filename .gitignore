@@ -23,6 +23,7 @@
 !/.config
 /.config/*
 !/.config/fuzzel
+!/.config/helix
 !/.config/hypr
 !/.config/kitty
 !/.config/mako
@@ -58,6 +59,11 @@
 /.config/fuzzel/fuzzel.ini
 /.config/kitty/current-theme.conf
 /.config/mako/config
+# Same category, with one difference: ornatus does not yet own this one, so
+# until it has a MAPPINGS entry a rebuild leaves Helix without the symlink and
+# it falls back to its default theme. Recreate by hand until then:
+#   ln -sfn ~/.config/theme/light/helix.toml ~/.config/helix/themes/current.toml
+/.config/helix/themes/current.toml
 
 # black.jpg — the desktop itself, a 64x64 solid black JPEG that ornatus scales
 # to cover. Needs no rule of its own; the directory above already tracks it.

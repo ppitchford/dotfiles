@@ -1,0 +1,11 @@
+# The theme is a symlink into the active bundle at ~/.config/theme/{dark,light}/,
+# the same arrangement ornatus already uses for kitty, fuzzel and mako. The
+# bundle file is one line: it inherits term16_light or term16_dark, which address
+# colours by ANSI name rather than by hex. Helix therefore emits colour indices
+# and kitty resolves them against whichever Sanctum palette is live, so the
+# palette is never duplicated here and never drifts.
+#
+# Helix reloads this file on SIGUSR1. Verified 2026-09-10: the default
+# disposition of SIGUSR1 is termination, and Helix survives it, so a handler
+# exists. That is the signal ornatus should send once it owns this symlink.
+theme = "current"
