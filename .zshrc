@@ -253,14 +253,17 @@ inbox-clear() {
   : > "$HOME/inbox.md"
 }
 
-# notes: what the vault holds, by type, plus anything waiting in the inbox.
-# Untyped is the default and means a finished zettel; seedlings are work owed.
+# notes: what the vault holds, by stage, plus anything waiting in the inbox.
+# Stage is explicit on every zettel and essay; source notes carry none, so the
+# counts are read directly rather than derived by subtraction.
 notes() {
-  local vault="$HOME/notes" total seedlings essays waiting
+  local vault="$HOME/notes" total seedling budding evergreen sources waiting
   total=$(find "$vault" -maxdepth 1 -name '*.md' ! -name 'CLAUDE.md' ! -name 'Conventions.md' | wc -l)
-  seedlings=$(grep -l '^type: seedling' "$vault"/*.md 2>/dev/null | wc -l)
-  essays=$(grep -l '^type: essay' "$vault"/*.md 2>/dev/null | wc -l)
-  print -r -- "$total notes — $((total - seedlings - essays)) evergreen, $seedlings seedling, $essays essay"
+  seedling=$(grep -l '^stage: seedling'  "$vault"/*.md 2>/dev/null | wc -l)
+  budding=$(grep -l '^stage: budding'    "$vault"/*.md 2>/dev/null | wc -l)
+  evergreen=$(grep -l '^stage: evergreen' "$vault"/*.md 2>/dev/null | wc -l)
+  sources=$(grep -l '^type: source'      "$vault"/*.md 2>/dev/null | wc -l)
+  print -r -- "$total notes — $evergreen evergreen, $budding budding, $seedling seedling, $sources source"
   if [[ -s "$HOME/inbox.md" ]]; then
     waiting=$(grep -c '^- ' "$HOME/inbox.md")
     print -r -- "$waiting capture(s) never reached Things — see ~/inbox.md"
