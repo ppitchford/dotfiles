@@ -258,7 +258,7 @@ inbox-clear() {
 # counts are read directly rather than derived by subtraction.
 notes() {
   local vault="$HOME/notes" total seedling budding evergreen sources waiting
-  total=$(find "$vault" -maxdepth 1 -name '*.md' ! -name 'CLAUDE.md' ! -name 'Conventions.md' | wc -l)
+  total=$(find "$vault" -maxdepth 1 -name '*.md' ! -name 'CLAUDE.md' ! -name 'README.md' | wc -l)
   seedling=$(grep -l '^stage: seedling'  "$vault"/*.md 2>/dev/null | wc -l)
   budding=$(grep -l '^stage: budding'    "$vault"/*.md 2>/dev/null | wc -l)
   evergreen=$(grep -l '^stage: evergreen' "$vault"/*.md 2>/dev/null | wc -l)
