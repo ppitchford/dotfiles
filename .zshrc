@@ -295,12 +295,13 @@ new-note() {
   hx "$file"
 }
 
-# New source note: new-source "<work title>". Named at creation rather than by
+# New source note: new-source "Title (Author)". Named at creation rather than by
 # timestamp, because a source note makes no claim of its own and so has no claim
-# to be renamed to later. The author goes in `author:`, not the filename.
+# to be renamed to later. The author is in the name so two works sharing a title
+# do not collide; it also goes in `author:` as a field.
 new-source() {
   if [[ -z "$*" ]]; then
-    echo "usage: new-source <work title>"
+    echo "usage: new-source <Title (Author)>"
     return 1
   fi
   # `zk new` returns the existing note's path and creates nothing when the
