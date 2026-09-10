@@ -257,15 +257,15 @@ inbox-clear() {
 # Every note carries a stage whatever its type, so the counts are read directly
 # rather than derived by subtraction from an untyped default.
 notes() {
-  local vault="$HOME/notes" total seedling budding evergreen sources waiting
+  local vault="$HOME/notes" total seedling budding established sources waiting
   total=$(find "$vault" -maxdepth 1 -name '*.md' ! -name 'CLAUDE.md' ! -name 'README.md' | wc -l)
   seedling=$(grep -l '^stage: seedling'  "$vault"/*.md 2>/dev/null | wc -l)
   budding=$(grep -l '^stage: budding'    "$vault"/*.md 2>/dev/null | wc -l)
-  evergreen=$(grep -l '^stage: evergreen' "$vault"/*.md 2>/dev/null | wc -l)
+  established=$(grep -l '^stage: established' "$vault"/*.md 2>/dev/null | wc -l)
   sources=$(grep -l '^type: source'      "$vault"/*.md 2>/dev/null | wc -l)
   # Stages partition the vault; types cut across it, so a source note appears in
   # both. Report the partition, and the type only as a parenthetical.
-  print -r -- "$total notes — $evergreen evergreen, $budding budding, $seedling seedling ($sources source)"
+  print -r -- "$total notes — $established established, $budding budding, $seedling seedling ($sources source)"
   if [[ -s "$HOME/inbox.md" ]]; then
     waiting=$(grep -c '^- ' "$HOME/inbox.md")
     print -r -- "$waiting capture(s) never reached Things — see ~/inbox.md"
