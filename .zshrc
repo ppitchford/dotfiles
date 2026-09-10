@@ -254,8 +254,8 @@ inbox-clear() {
 }
 
 # notes: what the vault holds, by stage, plus anything waiting in the inbox.
-# Stage is explicit on every zettel and essay; source notes carry none, so the
-# counts are read directly rather than derived by subtraction.
+# Every note carries a stage whatever its type, so the counts are read directly
+# rather than derived by subtraction from an untyped default.
 notes() {
   local vault="$HOME/notes" total seedling budding evergreen sources waiting
   total=$(find "$vault" -maxdepth 1 -name '*.md' ! -name 'CLAUDE.md' ! -name 'README.md' | wc -l)
@@ -263,7 +263,9 @@ notes() {
   budding=$(grep -l '^stage: budding'    "$vault"/*.md 2>/dev/null | wc -l)
   evergreen=$(grep -l '^stage: evergreen' "$vault"/*.md 2>/dev/null | wc -l)
   sources=$(grep -l '^type: source'      "$vault"/*.md 2>/dev/null | wc -l)
-  print -r -- "$total notes — $evergreen evergreen, $budding budding, $seedling seedling, $sources source"
+  # Stages partition the vault; types cut across it, so a source note appears in
+  # both. Report the partition, and the type only as a parenthetical.
+  print -r -- "$total notes — $evergreen evergreen, $budding budding, $seedling seedling ($sources source)"
   if [[ -s "$HOME/inbox.md" ]]; then
     waiting=$(grep -c '^- ' "$HOME/inbox.md")
     print -r -- "$waiting capture(s) never reached Things — see ~/inbox.md"
@@ -290,6 +292,22 @@ new-note() {
   # cannot drift. --print-path makes zk print instead of opening its own editor.
   file=$(cd "$HOME/notes" && zk new --no-input --print-path \
     --id "$id" --title "$*") || return
+  hx "$file"
+}
+
+# New source note: new-source "<work title>". Named at creation rather than by
+# timestamp, because a source note makes no claim of its own and so has no claim
+# to be renamed to later. The author goes in `author:`, not the filename.
+new-source() {
+  if [[ -z "$*" ]]; then
+    echo "usage: new-source <work title>"
+    return 1
+  fi
+  # Not `local path` — zsh ties `path` to PATH, and a local one blanks it.
+  local id file
+  id=$(date +%Y%m%d%H%M%S)
+  file=$(cd "$HOME/notes" && zk new --no-input --print-path \
+    --group source --id "$id" --title "$*") || return
   hx "$file"
 }
 
