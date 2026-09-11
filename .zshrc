@@ -253,21 +253,20 @@ inbox-clear() {
   : > "$HOME/inbox.md"
 }
 
-# notes: what the vault holds, by stage, plus anything waiting in the inbox.
-# Every note carries a stage whatever its type, so the counts are read directly
+# notes: what the vault holds, plus anything waiting in the inbox.
+# Every note carries a type, so the counts are read directly
 # rather than derived by subtraction from an untyped default. No longer nudges
 # about the log: the dated record moved to paper on 2026-09-10, so a file check
 # could only ever be wrong.
 notes() {
-  local vault="$HOME/notes" total seedling sapling established sources waiting
+  local vault="$HOME/notes" total sources outlines essays waiting
   total=$(find "$vault" -maxdepth 1 -name '*.md' ! -name 'CLAUDE.md' ! -name 'README.md' | wc -l)
-  seedling=$(grep -l '^stage: seedling'  "$vault"/*.md 2>/dev/null | wc -l)
-  sapling=$(grep -l '^stage: sapling'    "$vault"/*.md 2>/dev/null | wc -l)
-  established=$(grep -l '^stage: established' "$vault"/*.md 2>/dev/null | wc -l)
-  sources=$(grep -l '^type: source'      "$vault"/*.md 2>/dev/null | wc -l)
-  # Stages partition the vault; types cut across it, so a source note appears in
-  # both. Report the partition, and the type only as a parenthetical.
-  print -r -- "$total notes — $established established, $sapling sapling, $seedling seedling ($sources source)"
+  sources=$(grep -l '^type: source'  "$vault"/*.md 2>/dev/null | wc -l)
+  outlines=$(grep -l '^type: outline' "$vault"/*.md 2>/dev/null | wc -l)
+  essays=$(grep -l '^type: essay'    "$vault"/*.md 2>/dev/null | wc -l)
+  # Types partition the vault. The maturity counts this line used to carry went
+  # with the stage field on 2026-09-11: it graded notes instead of writing them.
+  print -r -- "$total notes — $sources source, $outlines outline, $essays essay"
   if [[ -s "$HOME/inbox.md" ]]; then
     waiting=$(grep -c '^- ' "$HOME/inbox.md")
     print -r -- "$waiting capture(s) never reached Things — see ~/inbox.md"

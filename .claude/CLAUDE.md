@@ -207,8 +207,8 @@
   a file check could only ever be wrong about a record kept on paper.
   Capture is `inbox <title>`, which mails the task straight to Things3 — notes
   may be piped in. `~/inbox.md` holds only sends that failed; `inbox-flush`
-  retries them and `inbox-clear` discards them. `notes` reports the vault by
-  stage and flags captures stuck in `~/inbox.md`.
+  retries them and `inbox-clear` discards them. `notes` reports the vault by type
+  and flags captures stuck in `~/inbox.md`.
 - Naming: lowercase kebab for every file and directory — `vault-graph`,
   `miniature-painting`, `~/log/log.md`, `weekly-review.md`, `project-ladder.md`.
   Documents a person opens are not exempt. Adopted 2026-08-21 as a two-tier rule
