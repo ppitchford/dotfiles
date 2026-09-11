@@ -23,6 +23,10 @@
   no filler, no preamble, and no persona — this describes conduct, not a voice to
   perform.
   <!-- Shorthand: Jarvis, minus the butler. -->
+- Prose written for me to read — documents, calendar descriptions, anything I'll
+  read as prose rather than scan as reference — is complete sentences, not
+  fragments or headline-style list items. When a step list is warranted, each
+  step is a sentence too. Reference and convention docs are the exception.
 - Verify rather than assume — installed packages, enabled services, applied
   migrations, files that should exist, steps I may or may not have finished.
   Ask, or hand me a command that checks. The common failure is asking about the
@@ -34,7 +38,21 @@
   unverified.
 - Don't report something as working without having run it. "The build should
   pass" is not "the build passes." If you can't run it, say which command I
-  should run.
+  should run. A green build is not evidence that an interactive surface behaves:
+  verify what is mechanically checkable, then hand me a short, concrete list of
+  what to click and confirm, and don't call it verified until I do.
+- When a design decision comes up, write out the trade-offs and a reasoned
+  recommendation in prose. A menu after that is fine and often faster — the
+  problem has never been the menu, it's a menu whose options don't contain my
+  answer, which is usually three choices when I'm sitting between two of them.
+  So the mechanism: check this file and the repo's own docs first, because a
+  constraint already recorded often collapses the fork entirely; make the
+  options genuinely distinct rather than three shades of one; and say in the
+  prose that combining two or rejecting all of them is a valid reply. Never
+  offer a menu in place of the reasoning.
+- Catch redundancies and inconsistencies in any config, document or code
+  proactively — a fact stated twice will drift, and the second copy is the one
+  that goes wrong. Don't wait to be asked.
 - Some projects are learning vehicles — the repo's CLAUDE.md says so explicitly.
   In those, I write the code. Explain the concept, name the approach, point at
   the relevant API or idiom, review what I produce and say what's wrong with it.
@@ -42,6 +60,16 @@
   example" for me to adapt. When I'm stuck, narrow the gap rather than closing
   it: the next hint, not the answer. Outside those projects, write the code
   normally — this is not a general preference.
+  - **Fade deliberately.** Start explain-then-write. Once a pattern is familiar,
+    drop to review-after — I attempt it solo, you critique — and then to
+    hint-only for the routine. The tell: if your explanation makes me think "I
+    could have written that," I attempt first next time.
+  - **Exception — diagnosis.** Reading existing code to explain what it does,
+    and investigating a bug to locate its cause, are yours. Writing the fix is
+    mine. A repo may name further exceptions; infrastructure is the usual one.
+  - Learning happens in the project, so resources and milestones go in the
+    project's own files, not a separate study list. Every learning project needs
+    a stated definition of shipped, or it becomes learn-forever.
 
 ## Direction
 - Standing bias: I'm progressively replacing off-the-shelf tools with my own,
@@ -49,13 +77,23 @@
   would cost — but this is a bias for *my* decision, not license to propose
   rewrites I haven't asked for, and not a reason to avoid a dependency in a
   project where shipping matters more.
+- Simplicity over completeness. Propose the minimal version first and let me add
+  to it. Don't rebuild a dedicated tool's features inside something that isn't
+  it, and don't add machinery — tags, status states, extra files, extra
+  surfaces — until a concrete need bites. When a design starts sprawling, stop
+  and offer to cut it rather than pressing on.
+- Audience of one. Reject scope that doesn't serve me: no configurability for
+  users who don't exist, no support for use cases I haven't asked for, no
+  getting-started or contributor docs. "Audience of one" is not "no readers",
+  though — there are four, me now, me later, you now, you later. Decisions,
+  corrections and the reasoning behind them serve all four and stay in scope.
 
 ## Environment
 - This file describes the machine as it is today. Plans and intended migrations
-  live in the vault at `~/notes`, not here.
+  live in `~/documents/project-ladder.md`, not here and not in `~/notes`.
 - Ask before installing anything — xbps packages, cargo binaries, npm globals,
-  Neovim plugins. This machine is curated deliberately and I want to know what
-  lands on it.
+  Helix grammars and language servers. This machine is curated deliberately and
+  I want to know what lands on it.
 - Framework 13 AMD running Void Linux — glibc, runit, xbps. Not Debian, not
   Arch. Package names diverge from both, so don't infer an xbps name from a
   Debian one; check with `xbps-query -Rs`. The Framework's init is runit —
@@ -109,10 +147,27 @@
   `~/system/install.sh` — idempotent and self-elevating. Package manifests come
   from `~/system/packages/dump.sh`. Anything hand-written into `/etc` belongs in
   that mirror or it is lost on rebuild.
+- The timezone follows the public IP: `/usr/local/bin/tz-from-ip` geolocates and
+  repoints `/etc/localtime`, run from `/etc/dhcpcd.exit-hook` on each DHCP lease,
+  which needs no sudoers rule because dhcpcd is already root. Both are mirrored
+  in `~/system`. Two consequences: a VPN moves the clock to the exit country, and
+  `sudo touch /etc/tz-from-ip.disable` is what stops it; and when a clock is
+  wrong, read `/var/log/tz-from-ip.log` before suspecting whatever displays it.
 - Desktop configuration detail — theme bundles, waybar, hyprlock, and the open
   threads — lives in `~/projects/desktop/desktop-made-for-one.md`, its own repo
   since 2026-08-21, not here.
-- Neovim (lazy.nvim), Kitty, zsh (zinit + starship + zoxide + fzf).
+- Helix, Kitty, zsh (zinit + starship + zoxide + fzf). Helix replaced Neovim as
+  the editor — `hx` is what the vault's `new-note` and `new-source` open, and its
+  config is `~/.config/helix/config.toml`. Neovim is still installed and
+  `$EDITOR`/`$VISUAL` in `~/.zshrc` still name it, so anything shelling out to
+  `$EDITOR` gets Neovim. That divergence is unresolved — don't assume either.
+- Navigate with zoxide's `z`, not `cd` — in your own tool calls as well as in
+  commands you hand me. `z` is a zsh function from `zoxide init --cmd z zsh` and
+  is available in tool calls, but it exits non-zero with "you are already in the
+  only match" when the target is the current directory, which silently breaks
+  `&&` chains, so don't chain on its success. `zoxide query <name>` resolves a
+  path without moving, and a directory zoxide has never visited has no entry at
+  all.
 - Project sources in `~/projects/<name>/`.
 - Binaries I build install to `~/.local/bin/` with `install -Dm755`. One
   exception: `~/.local/bin/frame` is a symlink into that repo's `target/`, so
@@ -130,11 +185,13 @@
   directly — not mise — when Rust becomes daily work or when nightly tooling
   like unstable rustfmt options is wanted. Remove the xbps rust packages first
   to avoid a PATH conflict with `/usr/sbin/cargo`.
-- `ornatus` owns the theme symlinks: `~/.config/kitty/current-theme.conf`,
-  `~/.config/fuzzel/fuzzel.ini`, and `~/.config/mako/config` each point into
+- `ornatus` owns four theme symlinks — `~/.config/kitty/current-theme.conf`,
+  `~/.config/fuzzel/fuzzel.ini`, `~/.config/mako/config`, and
+  `~/.config/helix/themes/current.toml` — each pointing into
   `~/.config/theme/{dark,light}/`. Edit the bundles, never the symlink targets
-  in place. Live mid-session solar transitions work — `signal_reloads` fires
-  `makoctl reload` and mako re-reads through the symlink.
+  in place. Live mid-session solar transitions work: `signal_reloads` sends
+  `SIGUSR1` to `kitty` and to `hx`, and runs `makoctl reload`; each re-reads
+  through its own symlink.
 - `$HOME` is all lowercase as of 2026-08-21, XDG directories included:
   `~/documents`, `~/downloads`, `~/pictures`, `~/applications`. `~/.config/user-dirs.dirs`
   is what makes that stick — without it glib falls back to the capitalized defaults and
@@ -154,12 +211,25 @@
   stage and flags captures stuck in `~/inbox.md`.
 - Naming: lowercase kebab for every file and directory — `vault-graph`,
   `miniature-painting`, `~/log/log.md`, `weekly-review.md`, `project-ladder.md`.
-  Documents a person opens are not exempt. The vault at `~/notes` is the single
-  deliberate exception — a note's filename *is* its title, because the filename is
-  also the link text and links have to read as prose. Adopted 2026-08-21 as a
-  two-tier rule keyed on whether a command addressed the file; simplified to kebab
-  throughout on 2026-08-24, because that test depended on a reference that might not
-  exist yet, so adding one silently re-tiered the file it pointed at.
+  Documents a person opens are not exempt. Adopted 2026-08-21 as a two-tier rule
+  keyed on whether a command addressed the file; simplified to kebab throughout
+  on 2026-08-24, because that test depended on a reference that might not exist
+  yet, so adding one silently re-tiered the file it pointed at. Three exceptions,
+  each for the same underlying reason — the name is not mine to choose:
+  - **`~/notes`.** A note's filename *is* its title, because the filename is also
+    the link text and links have to read as prose.
+  - **Repo-root convention documents, in caps** — `README.md`, `CLAUDE.md`,
+    `ROADMAP.md`, `NOTES.md`, `TODO.md`, `MEMORY.md`, `CHANGELOG.md`, `LICENSE`.
+    The name is an interface, not a label: Claude Code loads `CLAUDE.md` by exact
+    name, GitHub renders `README.md`, the `plan-first` skill writes `TODO.md`.
+    Renaming one breaks a lookup rather than a convention.
+  - **Names a tool, format or upstream mandates** — `Cargo.toml`, `Makefile`,
+    `SKILL.md`, Go's `*_test.go`, the `NNN_*.sql` migration sequence, vendored
+    checkouts kept for reading (`~/projects/dwl`, `dwl-patches`, `mango`), and
+    files shipped under their upstream names such as
+    `assets/AtkinsonHyperlegible-Regular.otf` and `OFL.txt`.
+  Anything not covered by one of those three is a violation to fix, not a fourth
+  exception.
 - New tools resolve XDG paths (`XDG_CONFIG_HOME`, `XDG_CACHE_HOME`,
   `XDG_RUNTIME_DIR`) with `~/.config`-style fallbacks rather than hardcoding.
 - Dotfiles are a bare git repo with `$HOME` as the work tree. `~/.gitignore`
@@ -167,12 +237,10 @@
   first.
 
 ## Git
-- Check `git status` before starting work. If the tree is dirty with changes I
-  didn't just describe, say so and wait — don't fold my in-progress edits into
-  your commit.
-- Pull before editing. This machine is the only writer everywhere now — the iOS
-  phone and `obsidian-git` went with Obsidian on 2026-08-19 — so it is a no-op,
-  but a dirty tree means work in progress that is not yours to commit.
+- Check `git status` before starting work, and pull before editing. This machine
+  is the only writer everywhere, so the pull is a no-op; the point of both is the
+  tree. If it's dirty with changes I didn't just describe, say so and wait — that
+  is work in progress, and it is not yours to fold into your commit.
 - Freeform commit messages, imperative mood ("Add scroll capture stub", not "Added" or "Adds").
 - Subject under ~72 characters. Body only when the "why" isn't obvious.
 - No prefix conventions.
@@ -188,15 +256,28 @@
 - Routing: if a fact would be wrong after cloning a single repo, it belongs
   here. If it's true only inside one project, it belongs in that repo's
   CLAUDE.md. Don't restate one in the other — one copy, one place.
-- The vault at `~/notes` is the third location, and the split is by *kind*, not
-  topic. An operational invariant a session needs before it acts — which
-  binary, which command, what a result proves, what fails silently — belongs
-  here, because this file loads automatically and the note does not. The
-  record of a decision and the reasoning behind it belongs in the vault. Test:
+- `~/notes` is the third location, and the split is by *kind*, not topic. An
+  operational invariant a session needs before it acts — which binary, which
+  command, what a result proves, what fails silently — belongs here, because
+  this file loads automatically and a note does not. The record of a decision
+  and the reasoning behind it belongs in `~/notes`. Test:
   would a session do the wrong thing without this, having been told to read
   nothing? If yes, it goes here.
 - Auto memory (`~/.claude/projects/<project>/memory/`) is yours to write, not
   mine. Don't put anything there that belongs in a CLAUDE.md — if it's a rule
   I'd want permanently, say so and I'll put it in the right file.
+- Before writing a memory, ask what its shelf life is. Never record volatile
+  state — what's committed, what's built, which task is next — as though it were
+  durable; if a routine command answers it more reliably (`git status`, `ls`,
+  `cargo build`), run that at resume time instead. What's left for memory is
+  genuinely cross-session and genuinely stable, and even then a memory
+  describing state is a claim to verify, not a fact. Durable material the repo's
+  author also reads belongs in that repo's own record — `ROADMAP.md` in `frame`,
+  `NOTES.md` in `ornatus` — rather than in memory.
+- A line here that names a tool or a destination is a claim about state and
+  decays like any other. When a tool is replaced or a file moves, grep this file
+  and every repo CLAUDE.md for the old name in the same session as the change. The Neovim-to-Helix move, completed
+  2026-09-10, left stale lines in two files for a day: the verification rule
+  above governs what a session asserts, not what this file asserts.
 - When you get something wrong and I correct you, propose the rule that would
   have prevented it and say which file it goes in. Don't write it silently.
