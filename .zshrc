@@ -255,7 +255,9 @@ inbox-clear() {
 
 # notes: what the vault holds, by stage, plus anything waiting in the inbox.
 # Every note carries a stage whatever its type, so the counts are read directly
-# rather than derived by subtraction from an untyped default.
+# rather than derived by subtraction from an untyped default. No longer nudges
+# about the log: the dated record moved to paper on 2026-09-10, so a file check
+# could only ever be wrong.
 notes() {
   local vault="$HOME/notes" total seedling sapling established sources waiting
   total=$(find "$vault" -maxdepth 1 -name '*.md' ! -name 'CLAUDE.md' ! -name 'README.md' | wc -l)
@@ -269,10 +271,6 @@ notes() {
   if [[ -s "$HOME/inbox.md" ]]; then
     waiting=$(grep -c '^- ' "$HOME/inbox.md")
     print -r -- "$waiting capture(s) never reached Things — see ~/inbox.md"
-  fi
-  # Silent once today has a heading in the log — a signal, not furniture.
-  if [[ -f "$HOME/log/log.md" ]] && ! grep -q "^## $(date +%F)" "$HOME/log/log.md"; then
-    print -r -- "nothing written in the log today"
   fi
 }
 
