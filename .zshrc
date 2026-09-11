@@ -273,9 +273,10 @@ notes() {
   fi
 }
 
-# New seedling: new-note <working title>. Every note starts as a seedling named
-# by its timestamp; the argument becomes the H1 only, never the filename, because
-# renaming a note to its claim is the event that promotes it out of seedling.
+# new-note <working title>. A note is created with a timestamp filename because
+# its assertion has not been written yet; the argument becomes the H1 only,
+# never the filename. Rename it whenever the wording sharpens — that is ordinary
+# refinement, at any point and any number of times, not a promotion or a stage.
 # Quote a working title containing an apostrophe.
 new-note() {
   if [[ -z "$*" ]]; then
@@ -319,9 +320,9 @@ new-source() {
   hx "$file"
 }
 
-# The count greets every new terminal — seedlings are work owed, and captures
-# sitting in the inbox are work not yet triaged. Interactive shells only, and
-# silent if the vault is not on this machine. Costs about 30ms.
+# The count greets every new terminal, and captures sitting in the inbox are
+# work not yet triaged. Interactive shells only, and silent if the vault is not
+# on this machine. Costs about 30ms.
 if [[ -o interactive && -d "$HOME/notes" ]]; then
   notes
 fi
