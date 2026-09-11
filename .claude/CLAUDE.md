@@ -141,11 +141,17 @@
   applications recreate `~/Downloads` beside `~/downloads`. frame and ornatus both had
   `~/Pictures` compiled in as a fallback and were patched and rebuilt for it.
 - The notes system is three repos: `~/notes` (the zettelkasten, GitHub `notes`,
-  renamed from `zettelkasten` on 2026-08-21), `~/log` (the dated record, private),
-  and `~/projects/desktop`. Capture is `inbox <title>`, which mails the task
-  straight to Things3 — notes may be piped in. `~/inbox.md` holds only sends that
-  failed; `inbox-flush` retries them and `inbox-clear` discards them. `notes`
-  reports the vault by type and flags anything stuck.
+  renamed from `zettelkasten` on 2026-08-21), `~/log` (private, and now archival
+  — it holds the dated record through 2026-08-24), and `~/projects/desktop`.
+  **The dated record moved to a paper notebook on 2026-09-10**, for portability
+  and lower friction to add to; it may be transcribed back into `~/log` later, so
+  the repo stays. Nothing on this machine tracks it any more — `notes` used to
+  nudge when today had no heading in `log.md` and that check was removed, because
+  a file check could only ever be wrong about a record kept on paper.
+  Capture is `inbox <title>`, which mails the task straight to Things3 — notes
+  may be piped in. `~/inbox.md` holds only sends that failed; `inbox-flush`
+  retries them and `inbox-clear` discards them. `notes` reports the vault by
+  stage and flags captures stuck in `~/inbox.md`.
 - Naming: lowercase kebab for every file and directory — `vault-graph`,
   `miniature-painting`, `~/log/log.md`, `weekly-review.md`, `project-ladder.md`.
   Documents a person opens are not exempt. The vault at `~/notes` is the single
