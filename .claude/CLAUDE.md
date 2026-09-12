@@ -207,7 +207,7 @@
   a file check could only ever be wrong about a record kept on paper.
   Capture is `inbox <title>`, which mails the task straight to Things3 — notes
   may be piped in. `~/inbox.md` holds only sends that failed; `inbox-flush`
-  retries them and `inbox-clear` discards them. `notes` reports `~/notes` by type
+  retries them and `inbox-clear` discards them. `notes` reports the notes by type
   and flags captures stuck in `~/inbox.md`.
 - Naming: lowercase kebab for every file and directory — `note-graph`,
   `miniature-painting`, `~/log/log.md`, `weekly-review.md`, `project-ladder.md`.

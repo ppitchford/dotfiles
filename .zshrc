@@ -253,7 +253,7 @@ inbox-clear() {
   : > "$HOME/inbox.md"
 }
 
-# notes: what `~/notes` holds, plus anything waiting in the inbox.
+# notes: what the notes hold, plus anything waiting in the inbox.
 # Every note carries a type, so the counts are read directly
 # rather than derived by subtraction from an untyped default. No longer nudges
 # about the log: the dated record moved to paper on 2026-09-10, so a file check
@@ -321,7 +321,7 @@ new-source() {
 }
 
 # The count greets every new terminal, and captures sitting in the inbox are
-# work not yet triaged. Interactive shells only, and silent if `~/notes` is not
+# work not yet triaged. Interactive shells only, and silent if the notes are not
 # on this machine. Costs about 30ms.
 if [[ -o interactive && -d "$HOME/notes" ]]; then
   notes
