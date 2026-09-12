@@ -1,13 +1,13 @@
 #!/usr/bin/env python3
-"""Render the notes vault as a link graph.
+"""Render ~/notes as a link graph.
 
 Nodes are documents, edges are wiki links. Notes with no link in either
 direction are drawn dashed and grey — that is the review signal, not a
 verdict: a new note may link to nothing yet.
 
-Usage: vault-graph [OUTPUT_PREFIX] [--vault DIR] [--all]
+Usage: note-graph [OUTPUT_PREFIX] [--notes DIR] [--all]
 
-OUTPUT_PREFIX defaults to $XDG_CACHE_HOME/vault-graph/vault, producing
+OUTPUT_PREFIX defaults to $XDG_CACHE_HOME/note-graph/notes, producing
 <prefix>.dot, <prefix>.svg and <prefix>.png.
 """
 import argparse, glob, os, re, shutil, subprocess, sys, textwrap
@@ -20,10 +20,10 @@ def cache_home():
     return os.environ.get("XDG_CACHE_HOME") or os.path.expanduser("~/.cache")
 
 
-def read_graph(vault, include_system):
-    files = sorted(os.path.basename(p) for p in glob.glob(os.path.join(vault, "*.md")))
+def read_graph(notes, include_system):
+    files = sorted(os.path.basename(p) for p in glob.glob(os.path.join(notes, "*.md")))
     if not files:
-        sys.exit(f"vault-graph: no markdown documents in {vault}")
+        sys.exit(f"note-graph: no markdown documents in {notes}")
     names = {os.path.splitext(f)[0] for f in files}
     kept = files if include_system else [f for f in files if f not in SYSTEM]
     keys = [os.path.splitext(f)[0] for f in kept]
@@ -32,7 +32,7 @@ def read_graph(vault, include_system):
     edges, elsewhere = set(), {}
     for f in files:
         src = os.path.splitext(f)[0]
-        targets = set(WIKI.findall(open(os.path.join(vault, f), encoding="utf-8").read()))
+        targets = set(WIKI.findall(open(os.path.join(notes, f), encoding="utf-8").read()))
         for tgt in targets:
             tgt = tgt.strip()
             if tgt not in names or tgt == src:
@@ -53,7 +53,7 @@ def write_dot(path, keys, edges):
     label = lambda k: "\\n".join(textwrap.wrap(k, 22)).replace('"', '\\"')
 
     out = [
-        "digraph vault {",
+        "digraph notes {",
         '  layout=sfdp overlap=prism sep="+14" splines=curved bgcolor="#faf9f7"',
         '  node [shape=box style="rounded,filled" fontname="Helvetica" fontsize=11',
         '        fillcolor="#ffffff" color="#c9c4bd" penwidth=1.2 margin="0.14,0.09"]',
@@ -75,22 +75,22 @@ def write_dot(path, keys, edges):
 
 
 def main():
-    ap = argparse.ArgumentParser(add_help=True, description="Render the notes vault as a link graph.")
-    ap.add_argument("prefix", nargs="?", help="output path prefix (default: $XDG_CACHE_HOME/vault-graph/vault)")
-    ap.add_argument("--vault", default=os.path.expanduser("~/notes"))
+    ap = argparse.ArgumentParser(add_help=True, description="Render ~/notes as a link graph.")
+    ap.add_argument("prefix", nargs="?", help="output path prefix (default: $XDG_CACHE_HOME/note-graph/notes)")
+    ap.add_argument("--notes", default=os.path.expanduser("~/notes"))
     ap.add_argument("--all", action="store_true", help="include Log, Conventions and CLAUDE.md as nodes")
     args = ap.parse_args()
 
     if not shutil.which("dot"):
-        sys.exit("vault-graph: graphviz is not installed (xbps-install graphviz)")
-    vault = os.path.expanduser(args.vault)
-    if not os.path.isdir(vault):
-        sys.exit(f"vault-graph: {vault} is not a directory")
+        sys.exit("note-graph: graphviz is not installed (xbps-install graphviz)")
+    notes = os.path.expanduser(args.notes)
+    if not os.path.isdir(notes):
+        sys.exit(f"note-graph: {notes} is not a directory")
 
-    prefix = args.prefix or os.path.join(cache_home(), "vault-graph", "vault")
+    prefix = args.prefix or os.path.join(cache_home(), "note-graph", "notes")
     os.makedirs(os.path.dirname(os.path.abspath(prefix)), exist_ok=True)
 
-    keys, edges, elsewhere = read_graph(vault, args.all)
+    keys, edges, elsewhere = read_graph(notes, args.all)
     degree = write_dot(prefix + ".dot", keys, edges)
     for fmt in ("svg", "png"):
         cmd = ["dot", "-Ksfdp", f"-T{fmt}", prefix + ".dot", "-o", f"{prefix}.{fmt}"]

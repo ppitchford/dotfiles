@@ -157,7 +157,7 @@
   threads — lives in `~/projects/desktop/desktop-made-for-one.md`, its own repo
   since 2026-08-21, not here.
 - Helix, Kitty, zsh (zinit + starship + zoxide + fzf). Helix replaced Neovim as
-  the editor — `hx` is what the vault's `new-note` and `new-source` open, and its
+  the editor — `hx` is what `new-note` and `new-source` open, and its
   config is `~/.config/helix/config.toml`. Neovim is still installed and
   `$EDITOR`/`$VISUAL` in `~/.zshrc` still name it, so anything shelling out to
   `$EDITOR` gets Neovim. That divergence is unresolved — don't assume either.
@@ -207,9 +207,9 @@
   a file check could only ever be wrong about a record kept on paper.
   Capture is `inbox <title>`, which mails the task straight to Things3 — notes
   may be piped in. `~/inbox.md` holds only sends that failed; `inbox-flush`
-  retries them and `inbox-clear` discards them. `notes` reports the vault by type
+  retries them and `inbox-clear` discards them. `notes` reports `~/notes` by type
   and flags captures stuck in `~/inbox.md`.
-- Naming: lowercase kebab for every file and directory — `vault-graph`,
+- Naming: lowercase kebab for every file and directory — `note-graph`,
   `miniature-painting`, `~/log/log.md`, `weekly-review.md`, `project-ladder.md`.
   Documents a person opens are not exempt. Adopted 2026-08-21 as a two-tier rule
   keyed on whether a command addressed the file; simplified to kebab throughout

@@ -253,18 +253,18 @@ inbox-clear() {
   : > "$HOME/inbox.md"
 }
 
-# notes: what the vault holds, plus anything waiting in the inbox.
+# notes: what `~/notes` holds, plus anything waiting in the inbox.
 # Every note carries a type, so the counts are read directly
 # rather than derived by subtraction from an untyped default. No longer nudges
 # about the log: the dated record moved to paper on 2026-09-10, so a file check
 # could only ever be wrong.
 notes() {
-  local vault="$HOME/notes" total sources outlines essays waiting
-  total=$(find "$vault" -maxdepth 1 -name '*.md' ! -name 'CLAUDE.md' ! -name 'README.md' | wc -l)
-  sources=$(grep -l '^type: source'  "$vault"/*.md 2>/dev/null | wc -l)
-  outlines=$(grep -l '^type: outline' "$vault"/*.md 2>/dev/null | wc -l)
-  essays=$(grep -l '^type: essay'    "$vault"/*.md 2>/dev/null | wc -l)
-  # Types partition the vault. The maturity counts this line used to carry went
+  local notes="$HOME/notes" total sources outlines essays waiting
+  total=$(find "$notes" -maxdepth 1 -name '*.md' ! -name 'CLAUDE.md' ! -name 'README.md' | wc -l)
+  sources=$(grep -l '^type: source'  "$notes"/*.md 2>/dev/null | wc -l)
+  outlines=$(grep -l '^type: outline' "$notes"/*.md 2>/dev/null | wc -l)
+  essays=$(grep -l '^type: essay'    "$notes"/*.md 2>/dev/null | wc -l)
+  # Types partition them. The maturity counts this line used to carry went
   # with the stage field on 2026-09-11: it graded notes instead of writing them.
   print -r -- "$total notes — $sources source, $outlines outline, $essays essay"
   if [[ -s "$HOME/inbox.md" ]]; then
@@ -321,7 +321,7 @@ new-source() {
 }
 
 # The count greets every new terminal, and captures sitting in the inbox are
-# work not yet triaged. Interactive shells only, and silent if the vault is not
+# work not yet triaged. Interactive shells only, and silent if `~/notes` is not
 # on this machine. Costs about 30ms.
 if [[ -o interactive && -d "$HOME/notes" ]]; then
   notes
